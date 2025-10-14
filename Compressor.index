@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FileForge - The All-in-One File Toolkit</title>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Pako.js for client-side GZIP compression -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+    <!-- JSZip for creating zip files -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.0/jszip.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
+        .drag-area-highlight { background-color: #e0f2fe; border-color: #0284c7; }
+        .smooth-transition { transition: all 0.3s ease-in-out; }
+        .dropdown:hover .dropdown-menu { display: block; }
+        #toast {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            padding: 12px 24px; border-radius: 8px; color: white;
+            z-index: 1000; opacity: 0; transition: opacity 0.5s, bottom 0.5s;
+        }
+        .plan-card { transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; }
+        .plan-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); }
+        .fade-in-up { animation: fadeInUp 1s ease-out forwards; opacity: 0; }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .delay-1 { animation-delay: 0.2s; }
+        .delay-2 { animation-delay: 0.4s; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <!-- Navigation Bar -->
+    <nav class="bg-white/90 backdrop-blur-sm shadow-md border-b border-slate-200 sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <svg class="h-8 w-auto text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z" /></svg>
+                        <a href="#" id="homeLink" class="ml-2 text-xl font-bold text-slate-800">FileForge</a>
+                    </div>
+                    <!-- Navigation Links -->
+                    <div class="hidden md:flex items-center space-x-1 ml-10">
+                        <a href="#compressor" id="compressorLinkNav" class="text-slate-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Compressor</a>
+                        <a href="#all-tools" id="allToolsLinkNav" class="text-slate-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">All Tools</a>
+                        <a href="#pricing" id="pricingLinkNav" class="text-slate-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Pricing</a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div id="credit-container" class="hidden items-center space-x-2 bg-indigo-100 text-indigo-700 font-semibold px-3 py-1.5 rounded-full">
+                         <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a.75.75 0 01.75.75v.5a.75.75 0 01-1.5 0v-.5A.75.75 0 0110 2zM10 18a.75.75 0 01.75-.75v-.5a.75.75 0 01-1.5 0v.5A.75.75 0 0110 18zM5.106 14.142a.75.75 0 010-1.06l.353-.353a.75.75 0 111.06 1.06l-.353.353a.75.75 0 01-1.06 0zM14.142 5.106a.75.75 0 011.06 0l.353.353a.75.75 0 01-1.06 1.06l-.353-.353a.75.75 0 010-1.06zM18 10a.75.75 0 01-.75.75h-.5a.75.75 0 010-1.5h.5A.75.75 0 0118 10zM2 10a.75.75 0 01.75-.75h.5a.75.75 0 010 1.5h-.5A.75.75 0 012 10zM14.142 14.142a.75.75 0 011.06 0l.353.353a.75.75 0 11-1.06 1.06l-.353-.353a.75.75 0 010-1.06zM5.106 5.106a.75.75 0 010 1.06l-.353.353a.75.75 0 11-1.06-1.06l.353-.353a.75.75 0 011.06 0z" /><path d="M10 5a5 5 0 100 10 5 5 0 000-10zM10 7a3 3 0 100 6 3 3 0 000-6z" /></svg>
+                        <span>Credits: <span id="credit-count">00</span></span>
+                    </div>
+                    <div id="auth-links" class="hidden md:flex items-center space-x-2">
+                        <button id="loginBtn" class="text-slate-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Login</button>
+                        <button id="signupBtn" class="bg-indigo-600 text-white hover:bg-indigo-700 px-4 py-2 rounded-md text-sm font-medium">Sign Up</button>
+                    </div>
+                    <div id="profile-container" class="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center overflow-hidden cursor-pointer hidden" title="My Account">
+                        <img id="profile-img" src="" alt="Profile Picture" class="hidden h-full w-full object-cover">
+                        <svg id="default-avatar" class="h-6 w-6 text-slate-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="w-full max-w-7xl mx-auto p-4 md:p-8">
+        <!-- Home Section (Landing Page) -->
+        <section id="home" class="main-section mb-20 text-center">
+            <div class="py-20 px-6">
+                <h1 class="text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight fade-in-up">
+                    Your Complete Online File Toolkit
+                </h1>
+                <p class="fade-in-up delay-1 mt-6 max-w-3xl mx-auto text-lg text-slate-600">
+                    Effortlessly compress, convert, edit, and manage all your files in one secure place. Fast, free, and entirely in your browser.
+                </p>
+                <div class="fade-in-up delay-2 mt-10">
+                    <a href="#compressor" id="homeGetStartedBtn" class="bg-indigo-600 text-white font-bold py-4 px-10 rounded-lg shadow-lg hover:bg-indigo-700 smooth-transition text-lg">
+                        Get Started for Free
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Compressor Section -->
+        <section id="compressor" class="main-section pt-16 mb-20">
+            <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden max-w-5xl mx-auto">
+                <header class="text-center p-6 border-b border-slate-200">
+                    <h1 class="text-3xl font-bold text-slate-900">File Compressor</h1>
+                    <p class="text-slate-500 mt-2">Compress files for free. Sign up to get 10 free credits for downloads.</p>
+                </header>
+                <div class="p-6 md:p-8">
+                    <div id="uploadSelection">
+                        <div class="grid md:grid-cols-2 gap-8 items-center">
+                            <div id="uploadArea" class="relative block w-full h-full min-h-[300px] rounded-lg border-2 border-dashed border-slate-300 p-6 text-center hover:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 smooth-transition flex flex-col justify-center items-center">
+                                <svg class="mx-auto h-12 w-12 text-slate-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true"><path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                                <span class="mt-4 block text-sm font-semibold text-slate-700">Drag & Drop File(s) Here</span>
+                                <span class="mt-1 block text-xs text-slate-500">Supports Images, PDF, TXT, and more</span>
+                            </div>
+                            <div class="space-y-3">
+                                <button id="deviceBtn" class="w-full flex items-center justify-center text-center p-4 bg-indigo-600 text-white rounded-lg shadow-sm hover:bg-indigo-700 smooth-transition font-semibold">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
+                                    Choose File(s) from Device
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="processingArea" class="hidden"></div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- All Tools Section -->
+        <section id="all-tools" class="main-section pt-16 mb-20">
+            <div class="max-w-7xl mx-auto">
+                <header class="text-center mb-16">
+                    <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight">All Our Tools</h1>
+                    <p class="mt-4 max-w-3xl mx-auto text-lg text-slate-600">A complete suite of tools to convert, compress, edit, and sign your documents, all in one place.</p>
+                </header>
+                <div id="all-tools-container" class="space-y-12">
+                    <!-- Tool categories will be dynamically inserted here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Pricing Section -->
+        <section id="pricing" class="main-section pt-16 mb-20">
+            <div class="max-w-5xl mx-auto">
+                 <header class="text-center mb-12">
+                    <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight">Flexible Plans for Everyone</h1>
+                    <p class="mt-4 max-w-2xl mx-auto text-lg text-slate-600">Choose a credit pack that suits your needs. Get started for free!</p>
+                </header>
+                <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Plan 1 -->
+                    <div class="plan-card border border-slate-200 rounded-lg p-8 bg-white flex flex-col smooth-transition">
+                        <h3 class="text-xl font-semibold">Starter</h3>
+                        <p class="text-slate-500 mt-2">Perfect for occasional use.</p>
+                        <div class="mt-6"><span class="text-4xl font-bold">₹49</span></div>
+                        <ul class="mt-8 space-y-4 text-slate-600 flex-grow">
+                            <li class="flex items-center"><svg class="h-5 w-5 text-green-500 mr-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.052-.143z" clip-rule="evenodd" /></svg>50 Credits</li>
+                        </ul>
+                        <button class="buy-btn mt-8 w-full bg-slate-200 text-slate-800 font-semibold py-3 rounded-lg hover:bg-slate-300 transition" data-credits="50">Buy Now</button>
+                    </div>
+                    <!-- Plan 2 (Most Popular) -->
+                    <div class="plan-card border-2 border-indigo-600 rounded-lg p-8 bg-white relative flex flex-col smooth-transition">
+                        <span class="absolute top-0 -translate-y-1/2 bg-indigo-600 text-white text-xs font-semibold px-3 py-1 rounded-full">MOST POPULAR</span>
+                        <h3 class="text-xl font-semibold">Pro</h3>
+                        <p class="text-slate-500 mt-2">For frequent users and professionals.</p>
+                        <div class="mt-6"><span class="text-4xl font-bold">₹199</span></div>
+                        <ul class="mt-8 space-y-4 text-slate-600 flex-grow">
+                            <li class="flex items-center"><svg class="h-5 w-5 text-green-500 mr-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.052-.143z" clip-rule="evenodd" /></svg>250 Credits</li>
+                            <li class="flex items-center"><svg class="h-5 w-5 text-green-500 mr-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.052-.143z" clip-rule="evenodd" /></svg>Access to All Tools</li>
+                        </ul>
+                        <button class="buy-btn mt-8 w-full bg-indigo-600 text-white font-semibold py-3 rounded-lg hover:bg-indigo-700 transition" data-credits="250">Buy Now</button>
+                    </div>
+                    <!-- Plan 3 -->
+                    <div class="plan-card border border-slate-200 rounded-lg p-8 bg-white flex flex-col smooth-transition">
+                        <h3 class="text-xl font-semibold">Power</h3>
+                        <p class="text-slate-500 mt-2">For heavy-duty tasks and teams.</p>
+                        <div class="mt-6"><span class="text-4xl font-bold">₹599</span></div>
+                        <ul class="mt-8 space-y-4 text-slate-600 flex-grow">
+                            <li class="flex items-center"><svg class="h-5 w-5 text-green-500 mr-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.052-.143z" clip-rule="evenodd" /></svg>1000 Credits</li>
+                            <li class="flex items-center"><svg class="h-5 w-5 text-green-500 mr-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.052-.143z" clip-rule="evenodd" /></svg>Priority Support</li>
+                        </ul>
+                        <button class="buy-btn mt-8 w-full bg-slate-200 text-slate-800 font-semibold py-3 rounded-lg hover:bg-slate-300 transition" data-credits="1000">Buy Now</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Generic Tool Page Section -->
+        <section id="generic-tool-page" class="main-section hidden pt-16 mb-20">
+             <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden max-w-5xl mx-auto">
+                <header class="text-center p-6 border-b border-slate-200">
+                    <h1 id="generic-tool-title" class="text-3xl font-bold text-slate-900">Tool Name</h1>
+                </header>
+                <div class="p-12 text-center">
+                    <h2 class="text-xl font-semibold text-slate-800">Feature Coming Soon!</h2>
+                    <p class="mt-2 text-slate-600">We're working hard to bring this tool to you. Please check back later.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <footer class="bg-white border-t border-slate-200">
+        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8">
+                <div class="col-span-2 lg:col-span-2">
+                     <div class="flex-shrink-0 flex items-center">
+                         <svg class="h-8 w-auto text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z" /></svg>
+                         <span class="ml-2 text-xl font-bold text-slate-800">FileForge</span>
+                     </div>
+                    <p class="mt-4 text-sm text-slate-500">Your all-in-one file toolkit.</p>
+                </div>
+                <div>
+                    <h3 class="text-sm font-semibold text-slate-900 tracking-wider uppercase">Product</h3>
+                    <ul class="mt-4 space-y-4">
+                        <li><a href="#home" class="text-base text-slate-500 hover:text-slate-900">Home</a></li>
+                        <li><a href="#" class="text-base text-slate-500 hover:text-slate-900">Features</a></li>
+                        <li><a href="#pricing" class="text-base text-slate-500 hover:text-slate-900">Pricing</a></li>
+                        <li><a href="#all-tools" class="text-base text-slate-500 hover:text-slate-900">Tools</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-sm font-semibold text-slate-900 tracking-wider uppercase">Resources</h3>
+                    <ul class="mt-4 space-y-4">
+                        <li><a href="#" class="text-base text-slate-500 hover:text-slate-900">Desktop App</a></li>
+                        <li><a href="#" class="text-base text-slate-500 hover:text-slate-900">Mobile App</a></li>
+                        <li><a href="#" class="text-base text-slate-500 hover:text-slate-900">API</a></li>
+                    </ul>
+                </div>
+                 <div>
+                    <h3 class="text-sm font-semibold text-slate-900 tracking-wider uppercase">Company</h3>
+                    <ul class="mt-4 space-y-4">
+                        <li><a href="#" class="text-base text-slate-500 hover:text-slate-900">About us</a></li>
+                        <li><a href="#" class="text-base text-slate-500 hover:text-slate-900">Contact us</a></li>
+                        <li><a href="#" class="text-base text-slate-500 hover:text-slate-900">Blog</a></li>
+                    </ul>
+                </div>
+                 <div>
+                    <h3 class="text-sm font-semibold text-slate-900 tracking-wider uppercase">Legal</h3>
+                    <ul class="mt-4 space-y-4">
+                        <li><a href="#" class="text-base text-slate-500 hover:text-slate-900">Privacy Policy</a></li>
+                        <li><a href="#" class="text-base text-slate-500 hover:text-slate-900">Terms & Conditions</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="mt-8 border-t border-slate-200 pt-8 text-center">
+                <p class="text-base text-slate-400">&copy; 2025 FileForge. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    <!-- Modals -->
+    <input type="file" id="fileUploadInput" class="hidden" multiple>
+    <div id="toast"></div>
+
+    <!-- Download Confirmation Modal -->
+    <div id="download-modal" class="modal hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg p-8 max-w-sm w-full shadow-xl text-center">
+            <h3 class="text-xl font-bold mb-2">Confirm Download</h3>
+            <p class="text-slate-600 mb-6">This action will use <strong class="text-indigo-600">1 credit token</strong>. Do you want to continue?</p>
+            <div class="flex justify-center space-x-4">
+                <button id="modal-cancel-btn" class="px-6 py-2 bg-slate-200 text-slate-800 rounded-md hover:bg-slate-300 transition">Cancel</button>
+                <button id="modal-confirm-btn" class="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">Download</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Coming Soon Modal -->
+    <div id="comingSoonModal" class="modal hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm text-center p-6">
+            <h3 class="text-lg font-semibold text-slate-800">Feature Coming Soon!</h3>
+            <p class="mt-2 text-sm text-slate-600">We're working hard to bring this to you. Please check back later.</p>
+            <button class="modal-close-btn mt-6 w-full bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-indigo-700">Got it</button>
+        </div>
+    </div>
+
+    <!-- Signup Modal -->
+    <div id="signupModal" class="modal hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm">
+            <h3 class="text-lg font-semibold text-slate-800 p-4 border-b">Create your Account</h3>
+            <p class="text-sm text-slate-500 px-4 pt-2">Get 10 free credits for file downloads!</p>
+            <form id="signupForm" class="p-4 space-y-4">
+                <div><label for="signup-name" class="block text-sm font-medium">Name</label><input type="text" id="signup-name" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm" required></div>
+                <div><label for="signup-email" class="block text-sm font-medium">Email</label><input type="email" id="signup-email" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm" required></div>
+                <div><label for="signup-password" class="block text-sm font-medium">Password</label><input type="password" id="signup-password" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm" required></div>
+                <div class="flex justify-center my-4">
+                    <div class="g-recaptcha" data-sitekey="YOUR_SITE_KEY_HERE"></div>
+                </div>
+                <div class="flex justify-end gap-3 pt-2">
+                    <button type="button" class="modal-close-btn bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 font-semibold py-2 px-4 rounded-lg text-sm">Cancel</button>
+                    <button type="submit" class="bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-indigo-700 text-sm">Sign Up</button>
+                </div>
+            </form>
+            <div class="relative px-4"><div class="absolute inset-0 flex items-center"><div class="w-full border-t"></div></div><div class="relative flex justify-center text-sm"><span class="bg-white px-2 text-slate-500">OR</span></div></div>
+            <div class="p-4 space-y-2">
+                <button id="googleSignUpBtn" class="w-full flex items-center justify-center p-3 bg-white border border-slate-300 rounded-lg hover:bg-slate-50"><img src="https://www.google.com/favicon.ico" class="w-5 h-5 mr-3" alt="Google icon">Sign Up with Google</button>
+                <button id="githubSignUpBtn" class="w-full flex items-center justify-center p-3 bg-gray-800 text-white rounded-lg hover:bg-gray-900"><svg class="w-5 h-5 mr-3" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>Sign Up with GitHub</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm">
+            <h3 class="text-lg font-semibold text-slate-800 p-4 border-b">Welcome Back!</h3>
+            <form id="loginForm" class="p-4 space-y-4">
+                <div><label for="login-email" class="block text-sm font-medium">Email</label><input type="email" id="login-email" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm" required></div>
+                <div><label for="login-password" class="block text-sm font-medium">Password</label><input type="password" id="login-password" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm" required></div>
+                <div class="flex justify-center my-4">
+                    <div class="g-recaptcha" data-sitekey="YOUR_SITE_KEY_HERE"></div>
+                </div>
+                <div class="flex justify-end gap-3 pt-2">
+                    <button type="button" class="modal-close-btn bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 font-semibold py-2 px-4 rounded-lg text-sm">Cancel</button>
+                    <button type="submit" class="bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-indigo-700 text-sm">Login</button>
+                </div>
+            </form>
+            <div class="relative px-4"><div class="absolute inset-0 flex items-center"><div class="w-full border-t"></div></div><div class="relative flex justify-center text-sm"><span class="bg-white px-2 text-slate-500">OR</span></div></div>
+            <div class="p-4 space-y-2">
+                <button id="googleLoginBtn" class="w-full flex items-center justify-center p-3 bg-white border border-slate-300 rounded-lg hover:bg-slate-50"><img src="https://www.google.com/favicon.ico" class="w-5 h-5 mr-3" alt="Google icon">Sign In with Google</button>
+                 <button id="githubLoginBtn" class="w-full flex items-center justify-center p-3 bg-gray-800 text-white rounded-lg hover:bg-gray-900"><svg class="w-5 h-5 mr-3" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>Sign In with GitHub</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- My Account Modal -->
+    <div id="accountModal" class="modal hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md">
+            <h3 class="text-lg font-semibold text-slate-800 p-4 border-b">My Account</h3>
+            <div class="p-6 space-y-4">
+                <div class="text-center">
+                    <img id="account-profile-img" src="" class="w-24 h-24 rounded-full mx-auto object-cover border-4 border-slate-200">
+                    <form id="profileImageForm" class="text-sm mt-2">
+                        <input type="file" id="profileImageInput" class="hidden" accept="image/*">
+                        <button type="button" id="changeProfileImgBtn" class="text-indigo-600 hover:underline">Change Picture</button>
+                    </form>
+                </div>
+                <div><strong>Name:</strong> <span id="account-name"></span></div>
+                <div><strong>Email:</strong> <span id="account-email"></span></div>
+                <div><strong>Credits:</strong> <span id="account-credits" class="font-bold text-indigo-600 text-lg"></span></div>
+            </div>
+            <div class="flex justify-between items-center gap-3 p-4 bg-slate-50 rounded-b-xl">
+                <button id="logoutBtn" class="text-sm text-red-600 hover:text-red-800 font-semibold">Log Out</button>
+                <button type="button" class="modal-close-btn bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-indigo-700 text-sm">Close</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, onAuthStateChanged, GoogleAuthProvider, GithubAuthProvider, signInWithPopup, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, onSnapshot, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+        // --- CONFIGURATION ---
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        
+        const FREE_TOKENS_ON_SIGNUP = 10;
+        const DOWNLOAD_COST = 1;
+
+        // --- FIREBASE INITIALIZATION ---
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+
+        // --- GLOBAL STATE & DOM ELEMENTS ---
+        let currentUser = null;
+        let userDocUnsubscribe = null;
+        let downloadAction = null; 
+
+        const toastEl = document.getElementById('toast');
+        const creditContainer = document.getElementById('credit-container');
+        const creditCountEl = document.getElementById('credit-count');
+        const authLinks = document.getElementById('auth-links');
+        const profileContainer = document.getElementById('profile-container');
+        const profileImg = document.getElementById('profile-img');
+        const defaultAvatar = document.getElementById('default-avatar');
+        const mainSections = document.querySelectorAll('.main-section');
+
+        // --- UI FUNCTIONS ---
+        function showToast(message, isError = false) {
+            toastEl.textContent = message;
+            toastEl.style.backgroundColor = isError ? '#ef4444' : '#22c55e';
+            toastEl.style.opacity = 1;
+            toastEl.style.bottom = '40px';
+            setTimeout(() => {
+                toastEl.style.opacity = 0;
+                toastEl.style.bottom = '20px';
+            }, 3000);
+        }
+
+        function showMainSection(sectionId) {
+            mainSections.forEach(section => {
+                section.classList.toggle('hidden', section.id !== sectionId);
+            });
+            window.scrollTo(0, 0);
+        }
+
+        function updateUIForAuthState(user) {
+            if (user) { 
+                authLinks.classList.add('hidden');
+                profileContainer.classList.remove('hidden');
+                creditContainer.classList.remove('hidden');
+                creditContainer.classList.add('flex');
+
+                if (user.photoURL) {
+                    profileImg.src = user.photoURL;
+                    profileImg.classList.remove('hidden');
+                    defaultAvatar.classList.add('hidden');
+                } else {
+                    profileImg.classList.add('hidden');
+                    defaultAvatar.classList.remove('hidden');
+                }
+            } else { 
+                authLinks.classList.remove('hidden');
+                profileContainer.classList.add('hidden');
+                creditContainer.classList.add('hidden');
+                creditContainer.classList.remove('flex');
+                profileImg.src = '';
+                creditCountEl.textContent = '00';
+            }
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if(modal) modal.classList.add('hidden');
+        }
+        
+        function activateTool(toolName) {
+            if (toolName.toLowerCase().includes('compress')) {
+                showMainSection('compressor');
+                resetUI();
+                return;
+            }
+            document.getElementById('generic-tool-title').textContent = toolName;
+            showMainSection('generic-tool-page');
+        }
+
+        // --- AUTHENTICATION ---
+        onAuthStateChanged(auth, async (user) => {
+            if (userDocUnsubscribe) userDocUnsubscribe();
+            currentUser = user;
+            if (user) {
+                await initializeUserData(user);
+            }
+            updateUIForAuthState(user);
+        });
+
+        async function initializeUserData(user) {
+            const userDocRef = doc(db, `users`, user.uid);
+            userDocUnsubscribe = onSnapshot(userDocRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const credits = docSnap.data().credits;
+                    creditCountEl.textContent = String(credits).padStart(2, '0');
+                    document.getElementById('account-credits').textContent = credits;
+                }
+            });
+
+            const docSnap = await getDoc(userDocRef);
+            if (!docSnap.exists()) {
+                await setDoc(userDocRef, {
+                    name: user.displayName,
+                    email: user.email,
+                    createdAt: new Date(),
+                    credits: FREE_TOKENS_ON_SIGNUP
+                });
+                showToast(`Welcome! You've received ${FREE_TOKENS_ON_SIGNUP} free credits.`);
+            }
+        }
+
+        // --- EVENT LISTENERS (AUTH) ---
+        document.getElementById('signupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const recaptchaResponse = grecaptcha.getResponse();
+            if (recaptchaResponse.length === 0) {
+                showToast("Please complete the reCAPTCHA verification.", true);
+                return;
+            }
+            const name = document.getElementById('signup-name').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                await updateProfile(userCredential.user, { displayName: name });
+                closeModal('signupModal');
+            } catch (error) { 
+                showToast(error.message, true);
+            } finally {
+                grecaptcha.reset();
+            }
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const recaptchaResponse = grecaptcha.getResponse();
+            if (recaptchaResponse.length === 0) {
+                showToast("Please complete the reCAPTCHA verification.", true);
+                return;
+            }
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                closeModal('loginModal');
+            } catch (error) { 
+                showToast(error.message, true);
+            } finally {
+                grecaptcha.reset();
+            }
+        });
+        
+        function handleGoogleSignIn() {
+            const provider = new GoogleAuthProvider();
+            signInWithPopup(auth, provider).then(() => {
+                closeModal('loginModal');
+                closeModal('signupModal');
+            }).catch(error => showToast(error.message, true));
+        }
+
+        function handleGitHubSignIn() {
+            const provider = new GithubAuthProvider();
+            signInWithPopup(auth, provider).then(() => {
+                closeModal('loginModal');
+                closeModal('signupModal');
+            }).catch(error => showToast(error.message, true));
+        }
+
+        document.getElementById('googleSignUpBtn').addEventListener('click', handleGoogleSignIn);
+        document.getElementById('googleLoginBtn').addEventListener('click', handleGoogleSignIn);
+        document.getElementById('githubSignUpBtn').addEventListener('click', handleGitHubSignIn);
+        document.getElementById('githubLoginBtn').addEventListener('click', handleGitHubSignIn);
+        document.getElementById('loginBtn').addEventListener('click', () => document.getElementById('loginModal').classList.remove('hidden'));
+        document.getElementById('signupBtn').addEventListener('click', () => document.getElementById('signupModal').classList.remove('hidden'));
+        document.querySelectorAll('.modal-close-btn').forEach(btn => btn.addEventListener('click', (e) => e.target.closest('.modal').classList.add('hidden')));
+
+        // --- ACCOUNT MODAL & PROFILE UPDATE ---
+        profileContainer.addEventListener('click', () => {
+            if (!currentUser) return;
+            document.getElementById('account-name').textContent = currentUser.displayName || 'N/A';
+            document.getElementById('account-email').textContent = currentUser.email;
+            const profilePic = document.getElementById('account-profile-img');
+            const placeholderUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.displayName || currentUser.email)}&background=random&color=fff`;
+            profilePic.src = currentUser.photoURL || placeholderUrl;
+            
+            const isProviderUser = currentUser.providerData.some(provider => provider.providerId !== 'password');
+            document.getElementById('profileImageForm').style.display = isProviderUser ? 'none' : 'block';
+
+            document.getElementById('accountModal').classList.remove('hidden');
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            signOut(auth);
+            closeModal('accountModal');
+        });
+
+        document.getElementById('changeProfileImgBtn').addEventListener('click', () => {
+            document.getElementById('profileImageInput').click();
+        });
+
+        document.getElementById('profileImageInput').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file || !currentUser) return;
+            showToast('Uploading image...');
+            const storageRef = ref(storage, `profile-images/${currentUser.uid}`);
+            try {
+                await uploadBytes(storageRef, file);
+                const photoURL = await getDownloadURL(storageRef);
+                await updateProfile(currentUser, { photoURL });
+                document.getElementById('account-profile-img').src = photoURL;
+                profileImg.src = photoURL;
+                showToast('Profile picture updated!');
+            } catch (error) {
+                showToast('Failed to upload image.', true);
+                console.error(error);
+            }
+        });
+        
+        // --- CREDIT & DOWNLOAD LOGIC ---
+        async function useCredits(cost) {
+            if (!currentUser) {
+                showToast("Please sign up to download files.", true);
+                document.getElementById('signupModal').classList.remove('hidden');
+                return false;
+            }
+            const userDocRef = doc(db, 'users', currentUser.uid);
+            const docSnap = await getDoc(userDocRef);
+            if (docSnap.exists() && docSnap.data().credits >= cost) {
+                await updateDoc(userDocRef, { credits: increment(-cost) });
+                return true;
+            } else {
+                showToast("Not enough credits to download.", true);
+                showMainSection('pricing');
+                return false;
+            }
+        }
+        
+        document.getElementById('modal-confirm-btn').addEventListener('click', async () => {
+             const success = await useCredits(DOWNLOAD_COST);
+             if (success) {
+                 showToast(`${DOWNLOAD_COST} credit used. Starting download...`);
+                 if (typeof downloadAction === 'function') {
+                     downloadAction();
+                 }
+             }
+             closeModal('download-modal');
+        });
+        document.getElementById('modal-cancel-btn').addEventListener('click', () => closeModal('download-modal'));
+
+        function promptForDownload(fileName, blob) {
+            downloadAction = () => {
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = fileName;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            };
+            document.getElementById('download-modal').classList.remove('hidden');
+        }
+
+        // --- COMPRESSOR LOGIC ---
+        const uploadSelection = document.getElementById('uploadSelection');
+        const processingArea = document.getElementById('processingArea');
+        const uploadArea = document.getElementById('uploadArea');
+        const fileUploadInput = document.getElementById('fileUploadInput');
+        let currentFiles = [];
+        let compressionResults = [];
+        let processedFileCount = 0;
+
+        function handleFiles(files) {
+            currentFiles.push(...Array.from(files));
+            compressionResults = new Array(currentFiles.length).fill(null);
+            renderProcessingUI();
+        }
+
+        function renderProcessingUI() {
+            if (currentFiles.length === 0) {
+                resetUI();
+                return;
+            }
+            uploadSelection.classList.add('hidden');
+            processingArea.classList.remove('hidden');
+            if (currentFiles.length === 1) {
+                showSingleFileUI(currentFiles[0]);
+            } else {
+                showBatchUI();
+            }
+        }
+
+        function showSingleFileUI(file) {
+            let previewHTML = '';
+            if (file.type.startsWith('image/')) {
+                previewHTML = `<img src="${URL.createObjectURL(file)}" alt="File preview" class="max-h-48 w-auto object-contain rounded-md mx-auto">`;
+            } else {
+                previewHTML = `<div class="text-8xl text-center py-10">📄</div>`;
+            }
+            
+            const isJPEG = file.type === 'image/jpeg';
+            
+            processingArea.innerHTML = `
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="space-y-4 text-center md:text-left">
+                        <h2 class="text-xl font-bold text-slate-800">Your File</h2>
+                        <div class="bg-slate-50 p-4 rounded-lg border">${previewHTML}</div>
+                        <div class="text-sm">
+                            <p class="font-semibold truncate">${file.name}</p>
+                            <p class="text-slate-500">${formatBytes(file.size)}</p>
+                        </div>
+                        <button id="resetBtn" class="w-full md:w-auto bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 font-semibold py-2 px-4 rounded-lg text-sm">Start Over</button>
+                    </div>
+                    <div class="space-y-6">
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-800">Compression Level</h2>
+                            <div id="compressionLevels" class="space-y-3 mt-3">
+                                <label class="block p-3 rounded-lg border-2 border-slate-200 cursor-pointer has-[:checked]:border-indigo-600 has-[:checked]:ring-1 has-[:checked]:ring-indigo-500 smooth-transition">
+                                    <input type="radio" name="compression-level" value="extreme" class="hidden">
+                                    <span class="font-semibold text-sm block">Extreme Compression</span>
+                                    <span class="text-xs text-slate-500">Less quality, high compression.</span>
+                                </label>
+                                <label class="block p-3 rounded-lg border-2 border-slate-200 cursor-pointer has-[:checked]:border-indigo-600 has-[:checked]:ring-1 has-[:checked]:ring-indigo-500 smooth-transition">
+                                    <input type="radio" name="compression-level" value="recommended" class="hidden" checked>
+                                    <span class="font-semibold text-sm block">Recommended Compression</span>
+                                    <span class="text-xs text-slate-500">Good quality, good compression.</span>
+                                </label>
+                                <label class="block p-3 rounded-lg border-2 border-slate-200 cursor-pointer has-[:checked]:border-indigo-600 has-[:checked]:ring-1 has-[:checked]:ring-indigo-500 smooth-transition">
+                                    <input type="radio" name="compression-level" value="less" class="hidden">
+                                    <span class="font-semibold text-sm block">Less Compression</span>
+                                    <span class="text-xs text-slate-500">High quality, less compression.</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div id="targetSizeSection" class="${isJPEG ? '' : 'hidden'}">
+                            <div class="relative"><div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-300"></div></div><div class="relative flex justify-center text-sm"><span class="px-2 bg-white text-slate-500">OR</span></div></div>
+                            <div class="mt-4">
+                                <label for="manualSizeInput" class="block text-sm font-medium text-slate-600">Manually Enter Size (KB)</label>
+                                <input type="number" id="manualSizeInput" placeholder="e.g., 150" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm">
+                            </div>
+                        </div>
+                        <div>
+                             <button id="compressBtn" class="w-full mt-4 flex items-center justify-center text-center p-4 bg-indigo-600 text-white rounded-lg shadow-sm hover:bg-indigo-700 font-semibold text-lg">Compress File</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="resultArea" class="mt-8"></div>
+            `;
+            addProcessingEventListeners();
+        }
+
+        function showBatchUI() {
+            const fileListHTML = currentFiles.map((file, index) => `
+                <div id="file-row-${index}" class="p-2 grid grid-cols-4 gap-2 items-center text-sm border-b">
+                    <div class="flex items-center gap-2 col-span-2">
+                        <div class="w-10 h-10 flex items-center justify-center bg-slate-200 rounded-md text-xl">📄</div>
+                        <div><p class="font-semibold truncate">${file.name}</p><p class="text-slate-500 text-xs">${formatBytes(file.size)}</p></div>
+                    </div>
+                    <div id="file-result-${index}" class="col-span-2 text-right"><span class="text-slate-400">Pending...</span></div>
+                </div>`).join('');
+
+            processingArea.innerHTML = `
+                <div class="grid lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2">
+                        <div class="flex justify-between items-center mb-2">
+                            <h2 class="text-xl font-bold text-slate-800">Your Files (${currentFiles.length})</h2>
+                            <div class="flex gap-2">
+                                 <button id="addMoreBtn" class="text-sm text-indigo-600 hover:text-indigo-800 font-semibold">Add More</button>
+                                 <button id="clearAllBtn" class="text-sm text-red-600 hover:text-red-800 font-semibold">Clear All</button>
+                            </div>
+                        </div>
+                        <div class="bg-white border rounded-lg max-h-96 overflow-y-auto">${fileListHTML}</div>
+                        <div id="zipDownloadArea" class="mt-4 text-center"></div>
+                    </div>
+                    <div class="space-y-6">
+                        <h2 class="text-xl font-bold text-slate-800">Compression Level</h2>
+                        <div class="space-y-3">
+                            <label class="block p-3 rounded-lg border-2 border-slate-200 cursor-pointer has-[:checked]:border-indigo-600"><input type="radio" name="compression-level" value="recommended" class="hidden" checked><span class="font-semibold text-sm block">Recommended</span><span class="text-xs text-slate-500">Good quality</span></label>
+                        </div>
+                        <div><button id="compressBtn" class="w-full mt-4 p-4 bg-indigo-600 text-white rounded-lg shadow-sm hover:bg-indigo-700 font-semibold text-lg">Compress All</button></div>
+                    </div>
+                </div>`;
+            addProcessingEventListeners();
+        }
+
+        function showSingleResult(originalFile, compressedBlob) {
+            const resultArea = document.getElementById('resultArea');
+            const downloadBtnId = `download-btn-${Date.now()}`;
+            const savings = 100 - (compressedBlob.size / originalFile.size * 100);
+
+            resultArea.innerHTML = `<div class="bg-green-50 border-dashed border-2 border-green-200 rounded-xl p-6">
+                <h3 class="text-xl font-bold text-green-800 text-center">Compression Complete!</h3>
+                <div class="flex justify-center gap-6 my-4 text-sm">
+                    <div><div class="text-slate-500">Original</div><div class="font-bold text-lg">${formatBytes(originalFile.size)}</div></div>
+                    <div><div class="text-slate-500">Compressed</div><div class="font-bold text-lg text-green-700">${formatBytes(compressedBlob.size)}</div></div>
+                    <div><div class="text-slate-500">Savings</div><div class="font-bold text-lg text-green-700">${savings.toFixed(1)}%</div></div>
+                </div>
+                <div class="text-center"><button id="${downloadBtnId}" class="bg-green-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-green-700">Download File (1 Credit)</button></div>
+            </div>`;
+            document.getElementById(downloadBtnId).onclick = () => promptForDownload(getCompressedFileName(originalFile.name), compressedBlob);
+            document.getElementById('compressBtn').disabled = true;
+            document.getElementById('compressBtn').textContent = 'Completed';
+        }
+
+        function updateFileResultInList(index, originalFile, compressedBlob) {
+            const resultContainer = document.getElementById(`file-result-${index}`);
+            const savings = 100 - (compressedBlob.size / originalFile.size * 100);
+            compressionResults[index] = { name: getCompressedFileName(originalFile.name), compressedBlob };
+
+            resultContainer.innerHTML = `<div class="flex items-center justify-end gap-2">
+                <div><p class="font-semibold text-green-700">${formatBytes(compressedBlob.size)}</p><p class="text-xs text-green-600">${savings.toFixed(1)}% Saved</p></div>
+                <button data-index="${index}" class="download-single-btn p-2 rounded-md hover:bg-slate-100"><svg class="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg></button>
+            </div>`;
+            
+            processedFileCount++;
+            if (processedFileCount === currentFiles.length) {
+                document.getElementById('compressBtn').disabled = true;
+                document.getElementById('compressBtn').textContent = 'Completed';
+                document.getElementById('zipDownloadArea').innerHTML = `<button id="downloadZipBtn" class="bg-green-600 text-white font-semibold py-3 px-8 rounded-lg hover:bg-green-700">Download All as .ZIP (1 Credit)</button>`;
+                document.getElementById('downloadZipBtn').addEventListener('click', createAndDownloadZip);
+            }
+            document.querySelectorAll('.download-single-btn').forEach(btn => btn.onclick = (e) => {
+                const idx = e.currentTarget.dataset.index;
+                const { name, compressedBlob } = compressionResults[idx];
+                promptForDownload(name, compressedBlob);
+            });
+        }
+        
+        function resetUI() {
+            currentFiles = [];
+            compressionResults = [];
+            processedFileCount = 0;
+            fileUploadInput.value = '';
+            uploadSelection.classList.remove('hidden');
+            processingArea.classList.add('hidden');
+            processingArea.innerHTML = '';
+        }
+        
+        function addProcessingEventListeners() {
+            document.getElementById('resetBtn')?.addEventListener('click', resetUI);
+            document.getElementById('clearAllBtn')?.addEventListener('click', resetUI);
+            document.getElementById('addMoreBtn')?.addEventListener('click', () => fileUploadInput.click());
+            document.getElementById('compressBtn')?.addEventListener('click', processCompression);
+        }
+
+        function getCompressedFileName(originalName) {
+            const dotIndex = originalName.lastIndexOf('.');
+            const name = dotIndex > -1 ? originalName.substring(0, dotIndex) : originalName;
+            return `${name}.gz`;
+        }
+
+        function processCompression() {
+             if (currentFiles.length === 1) processSingleFileCompression();
+             else processBatchCompression();
+        }
+
+        async function processSingleFileCompression() {
+            const compressBtn = document.getElementById('compressBtn');
+            compressBtn.disabled = true;
+            compressBtn.innerHTML = '<span class="animate-pulse">Compressing...</span>';
+            const file = currentFiles[0];
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const compressed = pako.gzip(new Uint8Array(e.target.result));
+                const blob = new Blob([compressed]);
+                showSingleResult(file, blob);
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        async function processBatchCompression() {
+            const compressBtn = document.getElementById('compressBtn');
+            compressBtn.disabled = true;
+            compressBtn.innerHTML = '<span class="animate-pulse">Compressing...</span>';
+            processedFileCount = 0;
+
+            currentFiles.forEach((file, index) => {
+                document.getElementById(`file-result-${index}`).innerHTML = `<span class="text-indigo-500 animate-pulse">...</span>`;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const compressed = pako.gzip(new Uint8Array(e.target.result));
+                    updateFileResultInList(index, file, new Blob([compressed]));
+                };
+                reader.readAsArrayBuffer(file);
+            });
+        }
+        
+        async function createAndDownloadZip() {
+            const zip = new JSZip();
+            compressionResults.forEach(result => {
+                if (result && result.compressedBlob) {
+                    zip.file(result.name, result.compressedBlob);
+                }
+            });
+            const zipBlob = await zip.generateAsync({ type: "blob" });
+            promptForDownload('FileForge-Compressed.zip', zipBlob);
+        }
+
+        // --- UTILS & INITIAL SETUP ---
+        const formatBytes = (bytes, decimals = 2) => {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(decimals < 0 ? 0 : decimals)) + ' ' + sizes[i];
+        };
+
+        uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.classList.add('drag-area-highlight'); });
+        uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag-area-highlight'));
+        uploadArea.addEventListener('drop', (e) => { e.preventDefault(); uploadArea.classList.remove('drag-area-highlight'); handleFiles(e.dataTransfer.files); });
+        document.getElementById('deviceBtn').addEventListener('click', () => fileUploadInput.click());
+        fileUploadInput.addEventListener('change', (e) => handleFiles(e.target.files));
+        
+        document.querySelectorAll('.coming-soon-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.getElementById('comingSoonModal').classList.remove('hidden');
+            });
+        });
+
+        // --- DYNAMIC CONTENT & INITIALIZATION ---
+        const toolData = [
+             { name: 'Compress PDF', category: 'Compress', icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 9V4.5M9 9H4.5M9 9L3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5M15 15l5.25 5.25" /></svg>', color: 'bg-red-500' },
+            { name: 'PDF Converter', category: 'Convert', icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" /></svg>', color: 'bg-red-500' },
+            { name: 'AI PDF Assistant', category: 'AI PDF', icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z" /></svg>', color: 'bg-blue-500' },
+            { name: 'Chat with PDF', category: 'AI PDF', icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12c0 4.556-4.03 8.25-9 8.25a9.76 9.76 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" /></svg>', color: 'bg-blue-500' },
+            { name: 'AI PDF Summarizer', category: 'AI PDF', icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>', color: 'bg-blue-500' },
+            { name: 'Translate PDF', category: 'AI PDF', icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m10.5 21 5.25-11.25L21 21m-9-3h7.5M3 5.621a48.474 48.474 0 0 1 6-.371m0 0c1.12 0 2.233.038 3.334.114M9 5.25V3m3.334 2.364C11.176 10.658 7.69 15.08 3 17.502" /></svg>', color: 'bg-blue-500' },
+            { name: 'AI Question Generator', category: 'AI PDF', icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" /></svg>', color: 'bg-blue-500' },
+            { name: 'Merge PDF', category: 'Organize', icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.75h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5m-16.5-1.5a1.5 1.5 0 0 1-1.5-1.5V6.75A1.5 1.5 0 0 1 3.75 5.25h16.5a1.5 1.5 0 0 1 1.5 1.5v10.5a1.5 1.5 0 0 1-1.5 1.5H3.75Z" /></svg>', color: 'bg-purple-500' },
+            { name: 'Split PDF', category: 'Organize', icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m-4.875-6.375h9.75" /><path d="M19.5 21a2.25 2.25 0 0 0 2.25-2.25V5.25A2.25 2.25 0 0 0 19.5 3H4.5A2.25 2.25 0 0 0 2.25 5.25v13.5A2.25 2.25 0 0 0 4.5 21h15Z" /></svg>', color: 'bg-purple-500' },
+            { name: 'Rotate PDF', category: 'Organize', icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 15l-6 6m0 0l-6-6m6 6V9a6 6 0 0 1 12 0v3" /></svg>', color: 'bg-purple-500' },
+            { name: 'Delete Pages', category: 'Organize', icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>', color: 'bg-purple-500' },
+            { name: 'Extract Pages', category: 'Organize', icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6A2.25 2.25 0 0 0 5.25 5.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" /></svg>', color: 'bg-purple-500' },
+            { name: 'Organize PDF', category: 'Organize', icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12" /></svg>', color: 'bg-purple-500' },
+            { name: 'Edit PDF', category: 'View & Edit', icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z" /></svg>', color: 'bg-teal-500' },
+            { name: 'PDF Annotator', category: 'View & Edit', icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487L19.5 7.125m-2.638-2.638-8.932 8.931a4.5 4.5 0 0 0-1.13 1.897l-.8 2.685.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" /></svg>', color: 'bg-teal-500' },
+            { name: 'PDF Reader', category: 'View & Edit', icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" /></svg>', color: 'bg-teal-500' },
+            { name: 'Number Pages', category: 'View & Edit', icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12H12m-8.25 5.25h16.5" /></svg>', color: 'bg-teal-500' },
+            { name: 'Crop PDF', category: 'View & Edit', icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 3.75H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V6a2.25 2.25 0 0 0-2.25-2.25h-3m-9.75 0v15m0-15H15" /></svg>', color: 'bg-teal-500' },
+            { name: 'Redact PDF', category: 'View & Edit', icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" /></svg>', color: 'bg-teal-500' },
+            { name: 'Watermark', category: 'View & Edit', icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 8.25h15m-16.5 7.5h15m-1.8-13.5l-3.9 19.5m-2.1-19.5l-3.9 19.5" /></svg>', color: 'bg-teal-500' },
+            { name: 'PDF Form Filler', category: 'View & Edit', icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" /></svg>', color: 'bg-teal-500' },
+            { name: 'Share PDF', category: 'View & Edit', icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 0-2.186m0 2.186c-.18.324-.283.696-.283 1.093s.103.77.283 1.093m0-2.186-9.566-5.314m0 0a2.25 2.25 0 1 0 0-2.186m0 2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093Z" /></svg>', color: 'bg-teal-500' },
+            { name: 'PDF to Word', category: 'Convert from PDF', icon: '<div class="font-bold text-lg">W</div>', color: 'bg-blue-600' },
+            { name: 'PDF to Excel', category: 'Convert from PDF', icon: '<div class="font-bold text-lg">X</div>', color: 'bg-green-600' },
+            { name: 'PDF to PPT', category: 'Convert from PDF', icon: '<div class="font-bold text-lg">P</div>', color: 'bg-orange-500' },
+            { name: 'PDF to JPG', category: 'Convert from PDF', icon: '<div class="font-bold text-sm">JPG</div>', color: 'bg-yellow-500' },
+            { name: 'Word to PDF', category: 'Convert to PDF', icon: '<div class="font-bold text-lg">W</div>', color: 'bg-blue-600' },
+            { name: 'Excel to PDF', category: 'Convert to PDF', icon: '<div class="font-bold text-lg">X</div>', color: 'bg-green-600' },
+            { name: 'PPT to PDF', category: 'Convert to PDF', icon: '<div class="font-bold text-lg">P</div>', color: 'bg-orange-500' },
+            { name: 'JPG to PDF', category: 'Convert to PDF', icon: '<div class="font-bold text-sm">JPG</div>', color: 'bg-yellow-500' },
+            { name: 'PDF OCR', category: 'Convert to PDF', icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0 1 3.75 9.375v-4.5Z" /></svg>', color: 'bg-gray-700' },
+            { name: 'Sign PDF', category: 'Sign', icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z" /></svg>', color: 'bg-pink-500' },
+            { name: 'Request Signatures', category: 'Sign', icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 0 1-2.25 2.25M16.5 7.5V18a2.25 2.25 0 0 0 2.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 0 0 2.25 2.25h13.5M6 7.5h3v3H6v-3z" /></svg>', color: 'bg-pink-500' },
+            { name: 'Unlock PDF', category: 'More', icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m9 3.75a2.25 2.25 0 0 1-2.25 2.25H6.75a2.25 2.25 0 0 1-2.25-2.25v-3.75a2.25 2.25 0 0 1 2.25-2.25h6.75a2.25 2.25 0 0 1 2.25 2.25Z" /></svg>', color: 'bg-gray-500' },
+            { name: 'Protect PDF', category: 'More', icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" /></svg>', color: 'bg-gray-500' },
+            { name: 'Flatten PDF', category: 'More', icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 0 1-.375.364l-3.422 3.422a.75.75 0 1 1-1.06-1.06l3.422-3.422a3 3 0 0 1 .364-.375h1.007M9 17.25a3 3 0 0 0 3 3h.007v.007a3 3 0 0 0 3-3v-1.007a3 3 0 0 0 .364-.375l3.422-3.422a.75.75 0 1 0-1.06-1.06l-3.422 3.422a3 3 0 0 0-.375.364V17.25Z" /></svg>', color: 'bg-gray-500' },
+            { name: 'PDF Scanner', category: 'Scan', icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.776 48.776 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" /></svg>', color: 'bg-indigo-500' },
+        ];
+        
+        function renderTools() {
+            const container = document.getElementById('all-tools-container');
+            const groupedTools = toolData.reduce((acc, tool) => {
+                (acc[tool.category] = acc[tool.category] || []).push(tool);
+                return acc;
+            }, {});
+
+            container.innerHTML = Object.entries(groupedTools).map(([category, tools]) => `
+                <div>
+                    <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">${category}</h3>
+                    <div class="space-y-4">
+                        ${tools.map(tool => `
+                            <a href="#" class="tool-link flex items-center gap-3 p-2 rounded-lg hover:bg-slate-100" data-tool="${tool.name}">
+                                <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center ${tool.color} rounded-lg text-white">
+                                    ${tool.icon}
+                                </div>
+                                <span class="font-medium text-sm">${tool.name}</span>
+                            </a>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+
+            document.querySelectorAll('.tool-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    activateTool(e.currentTarget.dataset.tool);
+                });
+            });
+        }
+        
+        // --- Navigation ---
+        document.getElementById('homeLink').addEventListener('click', (e) => { e.preventDefault(); showMainSection('home'); });
+        document.getElementById('compressorLinkNav').addEventListener('click', (e) => { e.preventDefault(); showMainSection('compressor'); resetUI(); });
+        document.getElementById('allToolsLinkNav').addEventListener('click', (e) => { e.preventDefault(); showMainSection('all-tools'); });
+        document.getElementById('pricingLinkNav').addEventListener('click', (e) => { e.preventDefault(); showMainSection('pricing'); });
+        document.getElementById('homeGetStartedBtn').addEventListener('click', (e) => { e.preventDefault(); showMainSection('compressor'); });
+
+        // Initial Page Load
+        showMainSection('home');
+        renderTools();
+        
+    </script>
+</body>
+</html>
+
