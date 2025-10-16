@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SwiftTools - 30-Day Productivity Challenge</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
+        }
+        .countdown-box {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .feature-card {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: background 0.3s ease, transform 0.3s ease;
+        }
+        .feature-card:hover {
+            background: rgba(51, 65, 85, 0.7);
+            transform: translateY(-5px);
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-white">
+
+    <div class="relative overflow-hidden">
+        <!-- Hero Section -->
+        <div class="flex flex-col items-center justify-center min-h-screen p-6 bg-grid-slate-800/[0.2] relative">
+            <!-- Background Glows -->
+            <div class="absolute top-0 -left-1/4 w-96 h-96 bg-indigo-600 rounded-full mix-blend-lighten filter blur-3xl opacity-20 animate-pulse"></div>
+            <div class="absolute bottom-0 -right-1/4 w-96 h-96 bg-purple-600 rounded-full mix-blend-lighten filter blur-3xl opacity-20 animate-pulse animation-delay-4000"></div>
+
+            <div class="relative z-10 text-center max-w-3xl mx-auto">
+                <!-- Logo -->
+                <div class="flex-shrink-0 flex items-center justify-center mb-8">
+                    <svg class="h-12 w-auto text-indigo-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z" />
+                    </svg>
+                    <span class="ml-3 text-3xl font-bold text-slate-100">SwiftTools</span>
+                </div>
+
+                <h1 class="text-4xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400 tracking-tight">
+                    Take the 30-Day Productivity Challenge
+                </h1>
+                <p class="mt-6 text-lg text-slate-300">
+                    Join us for a 30-day journey to supercharge your workflow. Each day, we'll send you a new tip, tool, or insight. At the end, you'll get exclusive early access to the all-new SwiftTools.
+                </p>
+                <p class="mt-4 text-md text-slate-400">
+                    We're putting the finishing touches on SwiftTools, your complete online file toolkit. Compress, convert, organize, and edit your files securely, right in your browser.
+                </p>
+
+                <!-- Countdown Timer -->
+                <div id="countdown" class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 my-12 max-w-2xl mx-auto">
+                    <div class="countdown-box rounded-lg p-4">
+                        <div id="days" class="text-4xl font-bold">00</div>
+                        <div class="text-sm text-slate-400">Days</div>
+                    </div>
+                    <div class="countdown-box rounded-lg p-4">
+                        <div id="hours" class="text-4xl font-bold">00</div>
+                        <div class="text-sm text-slate-400">Hours</div>
+                    </div>
+                    <div class="countdown-box rounded-lg p-4">
+                        <div id="minutes" class="text-4xl font-bold">00</div>
+                        <div class="text-sm text-slate-400">Minutes</div>
+                    </div>
+                    <div class="countdown-box rounded-lg p-4">
+                        <div id="seconds" class="text-4xl font-bold">00</div>
+                        <div class="text-sm text-slate-400">Seconds</div>
+                    </div>
+                </div>
+
+                <!-- Instagram Follow Button -->
+                <h2 class="text-xl font-semibold mb-4">Follow the Challenge on Instagram!</h2>
+                <div class="max-w-md mx-auto">
+                     <a href="#" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 text-white font-semibold py-3 px-8 rounded-full hover:opacity-90 transition duration-300">
+                        <svg class="w-6 h-6 mr-3" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.024.06 1.378.06 3.808s-.012 2.784-.06 3.808c-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.024.048-1.378.06-3.808.06s-2.784-.012-3.808-.06c-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.048-1.024-.06-1.378-.06-3.808s.012-2.784.06-3.808c.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 016.08 2.525c.636-.247 1.363-.416 2.427-.465C9.53 2.013 9.884 2 12.315 2zm-1.04 2.525c-1.01.048-1.585.2-2.025.378a2.9 2.9 0 00-1.085.672 2.9 2.9 0 00-.672 1.085c-.178.44-.33.986-.378 1.995-.049 1.008-.06 1.348-.06 3.73s.011 2.722.06 3.73c.048 1.009.2 1.556.378 1.995a2.9 2.9 0 00.672 1.085 2.9 2.9 0 001.085.672c.44.178.986.33 1.995.378 1.008.049 1.348.06 3.73.06s2.722-.011 3.73-.06c1.009-.048 1.556-.2 1.995-.378a2.9 2.9 0 001.085-.672 2.9 2.9 0 00.672-1.085c.178-.44.33-.986.378-1.995.049-1.008.06-1.348.06-3.73s-.011-2.722-.06-3.73c-.048-1.009-.2-1.556-.378-1.995a2.9 2.9 0 00-.672-1.085 2.9 2.9 0 00-1.085-.672c-.44-.178-.986-.33-1.995-.378C15.057 4.536 14.717 4.525 12.315 4.525h-1.04zM12 9.188a5.188 5.188 0 100 10.376 5.188 5.188 0 000-10.376zm0 2.25a2.938 2.938 0 110 5.875 2.938 2.938 0 010-5.875zM17.438 6.406a1.219 1.219 0 100 2.438 1.219 1.219 0 000-2.438z" clip-rule="evenodd" /></svg>
+                        Follow @swifttools
+                    </a>
+                </div>
+                <div class="mt-4 h-5"></div>
+            </div>
+        </div>
+
+        <!-- What's Coming Section -->
+        <div class="py-20 px-6">
+            <div class="max-w-5xl mx-auto text-center">
+                <h2 class="text-3xl font-bold text-slate-100">What's Coming?</h2>
+                <p class="mt-4 text-slate-400 max-w-2xl mx-auto">A sneak peek into the powerful suite of tools designed to streamline your digital life.</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mt-12 text-left">
+                    <!-- Feature 1: Compress -->
+                    <div class="feature-card p-6 rounded-lg">
+                        <div class="flex items-center justify-center h-12 w-12 rounded-md bg-red-500/20 text-red-400 mb-4">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 9V4.5M9 9H4.5M9 9L3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5M15 15l5.25 5.25" /></svg>
+                        </div>
+                        <h3 class="font-semibold text-lg text-white">Compress Files</h3>
+                        <p class="mt-2 text-slate-400">Reduce file size instantly.</p>
+                    </div>
+                    <!-- Feature 2: Organize -->
+                    <div class="feature-card p-6 rounded-lg">
+                        <div class="flex items-center justify-center h-12 w-12 rounded-md bg-purple-500/20 text-purple-400 mb-4">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12" /></svg>
+                        </div>
+                        <h3 class="font-semibold text-lg text-white">Organize PDFs</h3>
+                        <p class="mt-2 text-slate-400">Merge, split, and rotate.</p>
+                    </div>
+                    <!-- Feature 3: AI Tools -->
+                    <div class="feature-card p-6 rounded-lg">
+                        <div class="flex items-center justify-center h-12 w-12 rounded-md bg-blue-500/20 text-blue-400 mb-4">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09ZM18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456Z" /></svg>
+                        </div>
+                        <h3 class="font-semibold text-lg text-white">AI PDF Tools</h3>
+                        <p class="mt-2 text-slate-400">Chat, summarize, and translate.</p>
+                    </div>
+                    <!-- Feature 4: View & Edit -->
+                    <div class="feature-card p-6 rounded-lg">
+                        <div class="flex items-center justify-center h-12 w-12 rounded-md bg-teal-500/20 text-teal-400 mb-4">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z" /></svg>
+                        </div>
+                        <h3 class="font-semibold text-lg text-white">View & Edit</h3>
+                        <p class="mt-2 text-slate-400">Annotate, crop, and redact.</p>
+                    </div>
+                    <!-- Feature 5: Convert -->
+                    <div class="feature-card p-6 rounded-lg">
+                        <div class="flex items-center justify-center h-12 w-12 rounded-md bg-yellow-500/20 text-yellow-400 mb-4">
+                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" /></svg>
+                        </div>
+                        <h3 class="font-semibold text-lg text-white">Convert Files</h3>
+                        <p class="mt-2 text-slate-400">PDF to Word, JPG to PDF & more.</p>
+                    </div>
+                    <!-- Feature 6: Secure & Sign -->
+                    <div class="feature-card p-6 rounded-lg">
+                        <div class="flex items-center justify-center h-12 w-12 rounded-md bg-pink-500/20 text-pink-400 mb-4">
+                             <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" /></svg>
+                        </div>
+                        <h3 class="font-semibold text-lg text-white">Secure & Sign</h3>
+                        <p class="mt-2 text-slate-400">Protect, unlock, and sign PDFs.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="py-12 px-6 text-center text-slate-500 text-sm">
+            &copy; 2025 SwiftTools. All rights reserved.
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set the date we're counting down to (30 days from now)
+            const challengeDurationDays = 30;
+            const now = new Date();
+            const countDownDate = new Date(new Date().setDate(new Date().getDate() + challengeDurationDays)).getTime();
+
+            const daysEl = document.getElementById('days');
+            const hoursEl = document.getElementById('hours');
+            const minutesEl = document.getElementById('minutes');
+            const secondsEl = document.getElementById('seconds');
+            const countdownEl = document.getElementById('countdown');
+
+            const updateCountdown = () => {
+                const now = new Date().getTime();
+                const distance = countDownDate - now;
+
+                if (distance < 0) {
+                    clearInterval(interval);
+                    countdownEl.innerHTML = `<div class="col-span-full text-3xl font-bold text-green-400">The Challenge is Over! Welcome to the new SwiftTools!</div>`;
+                    return;
+                }
+
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                daysEl.textContent = String(days).padStart(2, '0');
+                hoursEl.textContent = String(hours).padStart(2, '0');
+                minutesEl.textContent = String(minutes).padStart(2, '0');
+                secondsEl.textContent = String(seconds).padStart(2, '0');
+            };
+
+            const interval = setInterval(updateCountdown, 1000);
+            updateCountdown(); // Run once immediately
+        });
+    </script>
+</body>
+</html>
+
