@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FileForge - The All-in-One File Toolkit</title>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.0/jszip.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
+        .drag-area-highlight { background-color: #e0f2fe; border-color: #0284c7; }
+        .smooth-transition { transition: all 0.3s ease-in-out; }
+        .dropdown:hover .dropdown-menu { display: block; }
+        #toast {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            padding: 12px 24px; border-radius: 8px; color: white;
+            z-index: 1000; opacity: 0; transition: opacity 0.5s, bottom 0.5s;
+        }
+        .plan-card { transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; }
+        .plan-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); }
+        .fade-in-up { animation: fadeInUp 1s ease-out forwards; opacity: 0; }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .delay-1 { animation-delay: 0.2s; }
+        .delay-2 { animation-delay: 0.4s; }
+        
+        /* Form transition styles from the new UI */
+        .form-transition {
+            transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out, max-height 0.3s ease-in-out;
+            max-height: 1000px;
+            overflow: hidden;
+        }
+        .form-hidden {
+            opacity: 0;
+            transform: scale(0.98);
+            max-height: 0;
+        }
+
+        /* --- STYLES FOR PREMIUM TOOLS --- */
+        .premium-lock { display: none; }
+        .tool-link.locked {
+            opacity: 0.7;
+            background-color: #f8fafc; /* slate-50 */
+        }
+        .tool-link.locked:hover {
+            background-color: #f1f5f9; /* slate-100 */
+        }
+        .tool-link.locked .premium-lock {
+            display: block;
+        }
+        .tool-link:not(.locked) .premium-lock {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <nav class="bg-white/90 backdrop-blur-sm shadow-md border-b border-slate-200 sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center">
+                        <svg class="h-8 w-auto text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z" /></svg>
+                        <a href="#" id="homeLink" class="ml-2 text-xl font-bold text-slate-800">FileForge</a>
+                    </div>
+                    <div class="hidden md:flex items-center space-x-1 ml-10">
+                        <a href="#compressor" id="compressorLinkNav" class="text-slate-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Compressor</a>
+                        <a href="#all-tools" id="allToolsLinkNav" class="text-slate-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">All Tools</a>
+                        <a href="#pricing" id="pricingLinkNav" class="text-slate-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Pricing</a>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div id="credit-container" class="hidden items-center space-x-2 bg-indigo-100 text-indigo-700 font-semibold px-3 py-1.5 rounded-full">
+                         <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a.75.75 0 01.75.75v.5a.75.75 0 01-1.5 0v-.5A.75.75 0 0110 2zM10 18a.75.75 0 01.75-.75v-.5a.75.75 0 01-1.5 0v.5A.75.75 0 0110 18zM5.106 14.142a.75.75 0 010-1.06l.353-.353a.75.75 0 111.06 1.06l-.353.353a.75.75 0 01-1.06 0zM14.142 5.106a.75.75 0 011.06 0l.353.353a.75.75 0 01-1.06 1.06l-.353-.353a.75.75 0 010-1.06zM18 10a.75.75 0 01-.75.75h-.5a.75.75 0 010-1.5h.5A.75.75 0 0118 10zM2 10a.75.75 0 01.75-.75h.5a.75.75 0 010 1.5h-.5A.75.75 0 012 10zM14.142 14.142a.75.75 0 011.06 0l.353.353a.75.75 0 11-1.06 1.06l-.353-.353a.75.75 0 010-1.06zM5.106 5.106a.75.75 0 010 1.06l-.353.353a.75.75 0 11-1.06-1.06l.353-.353a.75.75 0 011.06 0z" /><path d="M10 5a5 5 0 100 10 5 5 0 000-10zM10 7a3 3 0 100 6 3 3 0 000-6z" /></svg>
+                        <span>Credits: <span id="credit-count">00</span></span>
+                    </div>
+
+                    <div id="auth-links" class="hidden md:flex items-center space-x-2">
+                        <button id="loginBtn" class="text-slate-600 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Login</button>
+                        <button id="signupBtn" class="bg-indigo-600 text-white hover:bg-indigo-700 px-4 py-2 rounded-md text-sm font-medium">Sign Up</button>
+                    </div>
+                    <div id="profile-container" class="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center overflow-hidden cursor-pointer" title="My Account">
+                        <img id="profile-img" src="" alt="Profile Picture" class="hidden h-full w-full object-cover">
+                        <svg id="default-avatar" class="h-6 w-6 text-slate-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="w-full max-w-7xl mx-auto p-4 md:p-8">
+        <section id="home" class="main-section mb-20 text-center">
+            <div class="py-20 px-6">
+                <h1 class="text-5xl md:text-6xl font-extrabold text-slate-900 tracking-tight fade-in-up">
+                    Your Complete Online File Toolkit
+                </h1>
+                <p class="fade-in-up delay-1 mt-6 max-w-3xl mx-auto text-lg text-slate-600">
+                    Effortlessly compress, convert, edit, and manage all your files in one secure place. Fast, free, and entirely in your browser.
+                </p>
+                <div class="fade-in-up delay-2 mt-10">
+                    <a href="#compressor" id="homeGetStartedBtn" class="bg-indigo-600 text-white font-bold py-4 px-10 rounded-lg shadow-lg hover:bg-indigo-700 smooth-transition text-lg">
+                        Get Started for Free
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section id="compressor" class="main-section pt-16 mb-20">
+            <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden max-w-5xl mx-auto">
+                <header class="text-center p-6 border-b border-slate-200">
+                    <h1 class="text-3xl font-bold text-slate-900">File Compressor</h1>
+                    <p class="text-slate-500 mt-2">Compress files for free. You have 10 free guest credits.</p>
+                </header>
+                <div class="p-6 md:p-8">
+                    <div id="uploadSelection">
+                        <div class="grid md:grid-cols-2 gap-8 items-center">
+                            <div id="uploadArea" class="relative block w-full h-full min-h-[300px] rounded-lg border-2 border-dashed border-slate-300 p-6 text-center hover:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 smooth-transition flex flex-col justify-center items-center">
+                                <svg class="mx-auto h-12 w-12 text-slate-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true"><path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                                <span class="mt-4 block text-sm font-semibold text-slate-700">Drag & Drop File(s) Here</span>
+                                <span class="mt-1 block text-xs text-slate-500">Supports Images, PDF, TXT, and more</span>
+                            </div>
+                            <div class="space-y-3">
+                                <button id="deviceBtn" class="w-full flex items-center justify-center text-center p-4 bg-indigo-600 text-white rounded-lg shadow-sm hover:bg-indigo-700 smooth-transition font-semibold">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
+                                    Choose File(s) from Device
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="processingArea" class="hidden"></div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="all-tools" class="main-section pt-16 mb-20">
+            <div class="max-w-7xl mx-auto">
+                <header class="text-center mb-16">
+                    <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight">All Our Tools</h1>
+                    <p class="mt-4 max-w-3xl mx-auto text-lg text-slate-600">A complete suite of tools to convert, compress, edit, and sign your documents, all in one place.</p>
+                </header>
+                <div id="all-tools-container" class="space-y-12">
+                    </div>
+            </div>
+        </section>
+
+        <section id="pricing" class="main-section pt-16 mb-20">
+            <div class="max-w-5xl mx-auto">
+                 <header class="text-center mb-12">
+                    <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight">Flexible Plans for Everyone</h1>
+                    <p class="mt-4 max-w-2xl mx-auto text-lg text-slate-600">Choose a credit pack that suits your needs. Get started for free!</p>
+                </header>
+                <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="plan-card border border-slate-200 rounded-lg p-8 bg-white flex flex-col smooth-transition">
+                        <h3 class="text-xl font-semibold">Starter</h3>
+                        <p class="text-slate-500 mt-2">Perfect for occasional use.</p>
+                        <div class="mt-6"><span class="text-4xl font-bold">₹49</span></div>
+                        <ul class="mt-8 space-y-4 text-slate-600 flex-grow">
+                            <li class="flex items-center"><svg class="h-5 w-5 text-green-500 mr-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.052-.143z" clip-rule="evenodd" /></svg>50 Credits</li>
+                        </ul>
+                        <button class="buy-btn mt-8 w-full bg-slate-200 text-slate-800 font-semibold py-3 rounded-lg hover:bg-slate-300 transition" data-credits="50">Buy Now</button>
+                    </div>
+                    <div class="plan-card border-2 border-indigo-600 rounded-lg p-8 bg-white relative flex flex-col smooth-transition">
+                        <span class="absolute top-0 -translate-y-1/2 bg-indigo-600 text-white text-xs font-semibold px-3 py-1 rounded-full">MOST POPULAR</span>
+                        <h3 class="text-xl font-semibold">Pro</h3>
+                        <p class="text-slate-500 mt-2">For frequent users and professionals.</p>
+                        <div class="mt-6"><span class="text-4xl font-bold">₹199</span></div>
+                        <ul class="mt-8 space-y-4 text-slate-600 flex-grow">
+                            <li class="flex items-center"><svg class="h-5 w-5 text-green-500 mr-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.052-.143z" clip-rule="evenodd" /></svg>250 Credits</li>
+                            <li class="flex items-center"><svg class="h-5 w-5 text-green-500 mr-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.052-.143z" clip-rule="evenodd" /></svg>Access to All Tools</li>
+                        </ul>
+                        <button class="buy-btn mt-8 w-full bg-indigo-600 text-white font-semibold py-3 rounded-lg hover:bg-indigo-700 transition" data-credits="250">Buy Now</button>
+                    </div>
+                    <div class="plan-card border border-slate-200 rounded-lg p-8 bg-white flex flex-col smooth-transition">
+                        <h3 class="text-xl font-semibold">Power</h3>
+                        <p class="text-slate-500 mt-2">For heavy-duty tasks and teams.</p>
+                        <div class="mt-6"><span class="text-4xl font-bold">₹599</span></div>
+                        <ul class="mt-8 space-y-4 text-slate-600 flex-grow">
+                            <li class="flex items-center"><svg class="h-5 w-5 text-green-500 mr-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.052-.143z" clip-rule="evenodd" /></svg>1000 Credits</li>
+                            <li class="flex items-center"><svg class="h-5 w-5 text-green-500 mr-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.052-.143z" clip-rule="evenodd" /></svg>Priority Support</li>
+                        </ul>
+                        <button class="buy-btn mt-8 w-full bg-slate-200 text-slate-800 font-semibold py-3 rounded-lg hover:bg-slate-300 transition" data-credits="1000">Buy Now</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="generic-tool-page" class="main-section hidden pt-16 mb-20">
+             <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden max-w-5xl mx-auto">
+                <header class="text-center p-6 border-b border-slate-200">
+                    <h1 id="generic-tool-title" class="text-3xl font-bold text-slate-900">Tool Name</h1>
+                </header>
+                <div class="p-12 text-center">
+                    <h2 class="text-xl font-semibold text-slate-800">Feature Coming Soon!</h2>
+                    <p class="mt-2 text-slate-600">We're working hard to bring this tool to you. Please check back later.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <footer class="bg-white border-t border-slate-200">
+        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8">
+                <div class="col-span-2 lg:col-span-2">
+                     <div class="flex-shrink-0 flex items-center">
+                         <svg class="h-8 w-auto text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z" /></svg>
+                         <span class="ml-2 text-xl font-bold text-slate-800">FileForge</span>
+                    </div>
+                    <p class="mt-4 text-sm text-slate-500">Your all-in-one file toolkit.</p>
+                </div>
+                <div>
+                    <h3 class="text-sm font-semibold text-slate-900 tracking-wider uppercase">Product</h3>
+                    <ul class="mt-4 space-y-4">
+                        <li><a href="#home" class="text-base text-slate-500 hover:text-slate-900">Home</a></li>
+                        <li><a href="#" class="text-base text-slate-500 hover:text-slate-900">Features</a></li>
+                        <li><a href="#pricing" class="text-base text-slate-500 hover:text-slate-900">Pricing</a></li>
+                        <li><a href="#all-tools" class="text-base text-slate-500 hover:text-slate-900">Tools</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-sm font-semibold text-slate-900 tracking-wider uppercase">Resources</h3>
+                    <ul class="mt-4 space-y-4">
+                        <li><a href="#" class="text-base text-slate-500 hover:text-slate-900">Desktop App</a></li>
+                        <li><a href="#" class="text-base text-slate-500 hover:text-slate-900">Mobile App</a></li>
+                        <li><a href="#" class="text-base text-slate-500 hover:text-slate-900">API</a></li>
+                    </ul>
+                </div>
+                 <div>
+                    <h3 class="text-sm font-semibold text-slate-900 tracking-wider uppercase">Company</h3>
+                    <ul class="mt-4 space-y-4">
+                        <li><a href="#" class="text-base text-slate-500 hover:text-slate-900">About us</a></li>
+                        <li><a href="#" class="text-base text-slate-500 hover:text-slate-900">Contact us</a></li>
+                        <li><a href="#" class="text-base text-slate-500 hover:text-slate-900">Blog</a></li>
+                    </ul>
+                </div>
+                 <div>
+                    <h3 class="text-sm font-semibold text-slate-900 tracking-wider uppercase">Legal</h3>
+                    <ul class="mt-4 space-y-4">
+                        <li><a href="#" class="text-base text-slate-500 hover:text-slate-900">Privacy Policy</a></li>
+                        <li><a href="#" class="text-base text-slate-500 hover:text-slate-900">Terms & Conditions</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="mt-8 border-t border-slate-200 pt-8 text-center">
+                <p class="text-base text-slate-400">&copy; 2025 FileForge. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <input type="file" id="fileUploadInput" class="hidden" multiple>
+    <div id="toast"></div>
+
+    <div id="download-modal" class="modal hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg p-8 max-w-sm w-full shadow-xl text-center">
+            <h3 class="text-xl font-bold mb-2">Confirm Download</h3>
+            <p class="text-slate-600 mb-6">This action will use <strong class="text-indigo-600">1 credit token</strong>. Do you want to continue?</p>
+            <div class="flex justify-center space-x-4">
+                <button id="modal-cancel-btn" class="px-6 py-2 bg-slate-200 text-slate-800 rounded-md hover:bg-slate-300 transition">Cancel</button>
+                <button id="modal-confirm-btn" class="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition">Download</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="comingSoonModal" class="modal hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm text-center p-6">
+            <h3 class="text-lg font-semibold text-slate-800">Feature Coming Soon!</h3>
+            <p class="mt-2 text-sm text-slate-600">We're working hard to bring this to you. Please check back later.</p>
+            <button class="modal-close-btn mt-6 w-full bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-indigo-700">Got it</button>
+        </div>
+    </div>
+
+    <div id="authModal" class="modal hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
+        <div id="auth-card" class="relative w-full max-w-sm mx-auto bg-white p-5 rounded-2xl shadow-lg m-4">
+            <button id="close-auth-modal-btn" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            
+            <div class="text-center mb-4">
+                <h1 id="card-title" class="text-2xl font-bold text-gray-800 transition-all duration-300">Welcome Back!</h1>
+                <p id="card-subtitle" class="text-gray-500 mt-2 transition-all duration-300">Please sign in to continue.</p>
+            </div>
+    
+            <div id="login-form-container" class="form-transition">
+                <form id="login-form" class="space-y-3">
+                    <div>
+                        <label for="login-email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                        <input type="email" id="login-email" required class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label for="login-password" class="block text-sm font-medium text-gray-700">Password</label>
+                            <a href="#" id="forgot-password-link" class="text-sm font-medium text-blue-600 hover:text-blue-500">Forgot password?</a>
+                        </div>
+                        <div class="relative">
+                            <input type="password" id="login-password" required class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <button type="button" class="password-toggle absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5"></button>
+                        </div>
+                    </div>
+                    <div class="flex justify-center pt-2">
+                        <div class="g-recaptcha" data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"></div>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700">Login</button>
+                    <p class="text-center text-sm text-gray-600">Don't have an account? <a href="#" class="show-signup-link font-medium text-blue-600 hover:text-blue-500">Sign up</a></p>
+                </form>
+            </div>
+    
+            <div id="signup-form-container" class="form-transition form-hidden" style="display: none;">
+                <form id="signup-form" class="space-y-3">
+                    <div>
+                        <label for="signup-name" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                        <input type="text" id="signup-name" required class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="signup-email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                        <input type="email" id="signup-email" required class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="signup-password" class="block text-sm font-medium text-gray-700 mb-1">Create Password</label>
+                        <div class="relative">
+                            <input type="password" id="signup-password" required class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <button type="button" class="password-toggle absolute inset-y-0 right-0 pr-3 flex items-center text-sm leading-5"></button>
+                        </div>
+                        <p id="signup-password-error" class="text-red-500 text-xs mt-1 hidden">Password must be at least 8 characters long.</p>
+                    </div>
+                     <div class="flex justify-center pt-2">
+                        <div class="g-recaptcha" data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"></div>
+                    </div>
+                    <button type="submit" class="w-full bg-green-600 text-white font-semibold py-2 rounded-lg hover:bg-green-700">Create Account</button>
+                    <p class="text-center text-sm text-gray-600">Already have an account? <a href="#" class="show-login-link font-medium text-blue-600 hover:text-blue-500">Login</a></p>
+                </form>
+            </div>
+            
+            <div id="forgot-form-container" class="form-transition form-hidden" style="display: none;">
+                <form id="forgot-form" class="space-y-3">
+                    <div>
+                        <label for="forgot-email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                        <input type="email" id="forgot-email" required class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <button type="submit" class="w-full bg-orange-500 text-white font-semibold py-2 rounded-lg hover:bg-orange-600">Send Reset Link</button>
+                    <p class="text-center text-sm text-gray-600"><a href="#" class="show-login-link font-medium text-blue-600 hover:text-blue-500">Back to Login</a></p>
+                </form>
+            </div>
+    
+            <div id="social-divider" class="my-4 flex items-center">
+                <div class="flex-grow bg-gray-200 h-px"></div><span class="mx-4 text-sm text-gray-500">OR</span><div class="flex-grow bg-gray-200 h-px"></div>
+            </div>
+            <div id="social-login-container" class="space-y-3">
+                <button id="google-auth-btn" class="w-full flex items-center justify-center bg-white border border-gray-300 text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-gray-50">
+                    <svg class="w-5 h-5 mr-3" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12s5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24s8.955,20,20,20s20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"></path><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"></path><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.222,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"></path><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571l6.19,5.238C42.021,35.592,44,30.032,44,24C44,22.659,43.862,21.35,43.611,20.083z"></path></svg>
+                    Sign in with Google
+                </button>
+            </div>
+        </div>
+    </div>
+    <div id="accountModal" class="modal hidden fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md">
+            <h3 class="text-lg font-semibold text-slate-800 p-4 border-b">My Account</h3>
+            <div class="p-6 space-y-4">
+                <div class="text-center">
+                    <img id="account-profile-img" src="" class="w-24 h-24 rounded-full mx-auto object-cover border-4 border-slate-200">
+                    <form id="profileImageForm" class="text-sm mt-2">
+                        <input type="file" id="profileImageInput" class="hidden" accept="image/*">
+                        <button type="button" id="changeProfileImgBtn" class="text-indigo-600 hover:underline">Change Picture</button>
+                    </form>
+                </div>
+                <div><strong>Name:</strong> <span id="account-name"></span></div>
+                <div><strong>Email:</strong> <span id="account-email"></span></div>
+                <div><strong>Credits:</strong> <span id="account-credits" class="font-bold text-indigo-600 text-lg"></span></div>
+            </div>
+            <div class="flex justify-between items-center gap-3 p-4 bg-slate-50 rounded-b-xl">
+                <button id="logoutBtn" class="text-sm text-red-600 hover:text-red-800 font-semibold">Log Out</button>
+                <button type="button" class="modal-close-btn bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-indigo-700 text-sm">Close</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        // RE-ADDED email/pass auth functions
+        import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut, 
+                 createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, onSnapshot, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+        // --- CONFIGURATION ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyCG_OoDFWPR1viiPZ1yf4FsYPh0HH11YUc",
+            authDomain: "swifttools-c0d70.firebaseapp.com",
+            projectId: "swifttools-c0d70",
+            storageBucket: "swifttools-c0d70.appspot.com",
+            messagingSenderId: "381038178347",
+            appId: "1:381038178347:web:864062cb3b39e27d6f7a6e"
+        };
+
+        const FREE_TOKENS_ON_SIGNUP = 15;
+        const GUEST_CREDITS_START = 10;
+        const DOWNLOAD_COST = 1;
+
+        // --- FIREBASE INITIALIZATION ---
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+
+        // --- GLOBAL STATE & DOM ELEMENTS ---
+        let currentUser = null;
+        let userDocUnsubscribe = null;
+        let downloadAction = null; 
+        let currentGuestCredits = GUEST_CREDITS_START;
+
+        const toastEl = document.getElementById('toast');
+        const creditContainer = document.getElementById('credit-container');
+        const creditCountEl = document.getElementById('credit-count');
+        
+        // --- MODIFIED DOM ELEMENTS ---
+        const authLinks = document.getElementById('auth-links'); // Re-added
+        
+        const profileContainer = document.getElementById('profile-container');
+        const profileImg = document.getElementById('profile-img');
+        const defaultAvatar = document.getElementById('default-avatar');
+        const mainSections = document.querySelectorAll('.main-section');
+
+        // --- UI FUNCTIONS ---
+        function showToast(message, isError = false) {
+            toastEl.textContent = message;
+            toastEl.style.backgroundColor = isError ? '#ef4444' : '#22c55e';
+            toastEl.style.opacity = 1;
+            toastEl.style.bottom = '40px';
+            setTimeout(() => {
+                toastEl.style.opacity = 0;
+                toastEl.style.bottom = '20px';
+            }, 3000);
+        }
+
+        function showMainSection(sectionId) {
+            mainSections.forEach(section => {
+                section.classList.toggle('hidden', section.id !== sectionId);
+            });
+            window.scrollTo(0, 0);
+        }
+
+        // --- Guest Credit Functions (Unchanged) ---
+        function initializeGuestCredits() {
+            let credits = sessionStorage.getItem('guestCredits');
+            if (credits === null) {
+                currentGuestCredits = GUEST_CREDITS_START;
+                sessionStorage.setItem('guestCredits', currentGuestCredits);
+            } else {
+                currentGuestCredits = parseInt(credits, 10);
+            }
+            updateGuestCreditUI();
+        }
+        
+        function updateGuestCreditUI() {
+            creditCountEl.textContent = String(currentGuestCredits).padStart(2, '0');
+            sessionStorage.setItem('guestCredits', currentGuestCredits);
+        }
+
+        // --- MODIFIED: updateUIForAuthState ---
+        function updateUIForAuthState(user) {
+            if (user) { 
+                // User is LOGGED IN
+                authLinks.classList.add('hidden'); // Hide Login/Sign Up
+                profileContainer.classList.remove('hidden');
+                creditContainer.classList.remove('hidden');
+                creditContainer.classList.add('flex');
+
+                if (user.photoURL) {
+                    profileImg.src = user.photoURL;
+                    profileImg.classList.remove('hidden');
+                    defaultAvatar.classList.add('hidden');
+                } else {
+                    profileImg.classList.add('hidden');
+                    defaultAvatar.classList.remove('hidden');
+                }
+            } else { 
+                // User is LOGGED OUT (Anonymous)
+                authLinks.classList.remove('hidden'); // Show Login/Sign Up
+                profileContainer.classList.remove('hidden'); // Show default avatar
+                creditContainer.classList.remove('hidden'); // Show guest credits
+                creditContainer.classList.add('flex');
+                
+                profileImg.classList.add('hidden');
+                profileImg.src = '';
+                defaultAvatar.classList.remove('hidden');
+                
+                initializeGuestCredits();
+            }
+            updateToolLocks();
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if(modal) modal.classList.add('hidden');
+        }
+        
+        function activateTool(toolName) {
+            if (toolName.toLowerCase().includes('compress')) {
+                showMainSection('compressor');
+                resetUI();
+                return;
+            }
+            document.getElementById('generic-tool-title').textContent = toolName;
+            showMainSection('generic-tool-page');
+        }
+
+        // --- AUTHENTICATION (Unchanged) ---
+        onAuthStateChanged(auth, async (user) => {
+            if (userDocUnsubscribe) userDocUnsubscribe();
+            
+            if (user) {
+                sessionStorage.removeItem('guestCredits');
+                currentUser = user;
+                await initializeUserData(user);
+            } else {
+                currentUser = null;
+            }
+            updateUIForAuthState(user);
+        });
+
+        async function initializeUserData(user) {
+            const userDocRef = doc(db, `users`, user.uid);
+            userDocUnsubscribe = onSnapshot(userDocRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const credits = docSnap.data().credits;
+                    creditCountEl.textContent = String(credits).padStart(2, '0');
+                    document.getElementById('account-credits').textContent = credits;
+                }
+            });
+
+            const docSnap = await getDoc(userDocRef);
+            if (!docSnap.exists()) {
+                await setDoc(userDocRef, {
+                    name: user.displayName,
+                    email: user.email,
+                    createdAt: new Date(),
+                    credits: FREE_TOKENS_ON_SIGNUP
+                });
+                showToast(`Welcome! You've received ${FREE_TOKENS_ON_SIGNUP} free credits.`);
+            }
+        }
+
+        // --- RE-ADDED: AUTH HANDLERS ---
+        async function handleEmailSignup(e) {
+            e.preventDefault();
+            if (grecaptcha.getResponse() === "") {
+                showToast("Please complete the reCAPTCHA.", true);
+                return;
+            }
+            const name = document.getElementById('signup-name').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            if (password.length < 8) {
+                showToast("Password must be at least 8 characters.", true);
+                return;
+            }
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                await updateProfile(userCredential.user, { displayName: name });
+                // initializeUserData will be called by onAuthStateChanged
+                closeModal('authModal');
+            } catch (error) { 
+                showToast(error.message, true);
+            } finally {
+                grecaptcha.reset();
+            }
+        }
+
+        async function handleEmailLogin(e) {
+            e.preventDefault();
+            if (grecaptcha.getResponse() === "") {
+                showToast("Please complete the reCAPTCHA.", true);
+                return;
+            }
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                closeModal('authModal');
+            } catch (error) { 
+                showToast(error.message, true);
+            } finally {
+                grecaptcha.reset();
+            }
+        }
+        
+        async function handlePasswordReset(e) {
+            e.preventDefault();
+            const email = document.getElementById('forgot-email').value;
+            try {
+                await sendPasswordResetEmail(auth, email);
+                showToast(`Password reset link sent to ${email}.`);
+                switchForm('login');
+            } catch (error) {
+                showToast(error.message, true);
+            }
+        }
+
+        function handleGoogleSignIn() {
+            const provider = new GoogleAuthProvider();
+            signInWithPopup(auth, provider).then(() => {
+                closeModal('authModal');
+            }).catch(error => showToast(error.message, true));
+        }
+
+        // --- RE-ADDED: AUTH MODAL UI LOGIC ---
+        const authModalForms = {
+            login: document.getElementById('login-form-container'),
+            signup: document.getElementById('signup-form-container'),
+            forgot: document.getElementById('forgot-form-container')
+        };
+        const cardTitle = document.getElementById('card-title');
+        const cardSubtitle = document.getElementById('card-subtitle');
+        const socialDivider = document.getElementById('social-divider');
+        const socialLogin = document.getElementById('social-login-container');
+
+        const switchForm = (showForm) => {
+            Object.values(authModalForms).forEach(form => {
+                form.classList.add('form-hidden');
+                setTimeout(() => form.style.display = 'none', 300);
+            });
+            setTimeout(() => {
+                authModalForms[showForm].style.display = 'block';
+                requestAnimationFrame(() => authModalForms[showForm].classList.remove('form-hidden'));
+                
+                const showSocials = (showForm !== 'forgot');
+                socialDivider.style.display = showSocials ? 'flex' : 'none';
+                socialLogin.style.display = showSocials ? 'block' : 'none';
+                
+                if (showForm === 'login') {
+                    cardTitle.textContent = 'Welcome Back!';
+                    cardSubtitle.textContent = 'Please sign in to continue.';
+                } else if (showForm === 'signup') {
+                    cardTitle.textContent = 'Create an Account';
+                    cardSubtitle.textContent = 'Get started with a new account.';
+                } else if (showForm === 'forgot') {
+                    cardTitle.textContent = 'Forgot Password?';
+                    cardSubtitle.textContent = "Enter your email to get a reset link.";
+                }
+            }, 300);
+        };
+
+        const setupPasswordFeatures = (formId) => {
+            const form = document.getElementById(formId);
+            const passwordInput = form.querySelector('input[type="password"]');
+            const toggleButton = form.querySelector('.password-toggle');
+            const errorElement = form.querySelector('[id$="-password-error"]');
+            const eyeIcon = `<svg class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>`;
+            const eyeSlashIcon = `<svg class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7 1.274-4.057 5.064-7 9.542-7 .847 0 1.67.127 2.452.364m-6.08 6.08a3 3 0 104.243 4.243m-4.243-4.243L8.175 8.175m6.08 6.08L18.825 18.825M12 17.75a5.75 5.75 0 005.75-5.75M12 6.25a5.75 5.75 0 015.75 5.75" /></svg>`;
+            
+            if (toggleButton) {
+                toggleButton.innerHTML = eyeIcon;
+                toggleButton.addEventListener('click', () => {
+                    if (passwordInput.type === 'password') {
+                        passwordInput.type = 'text';
+                        toggleButton.innerHTML = eyeSlashIcon;
+                    } else {
+                        passwordInput.type = 'password';
+                        toggleButton.innerHTML = eyeIcon;
+                    }
+                });
+            }
+
+            if (errorElement) {
+                passwordInput.addEventListener('keyup', () => {
+                    if (passwordInput.value.length > 0 && passwordInput.value.length < 8) {
+                        errorElement.classList.remove('hidden');
+                    } else {
+                        errorElement.classList.add('hidden');
+                    }
+                });
+            }
+        };
+
+        // --- RE-ADDED: EVENT LISTENERS ---
+        // Auth Triggers
+        document.getElementById('loginBtn').addEventListener('click', () => { switchForm('login'); document.getElementById('authModal').classList.remove('hidden'); });
+        document.getElementById('signupBtn').addEventListener('click', () => { switchForm('signup'); document.getElementById('authModal').classList.remove('hidden'); });
+        document.getElementById('close-auth-modal-btn').addEventListener('click', () => closeModal('authModal'));
+        document.querySelectorAll('.modal-close-btn').forEach(btn => btn.addEventListener('click', (e) => e.target.closest('.modal').classList.add('hidden')));
+        
+        // Form submissions
+        document.getElementById('login-form').addEventListener('submit', handleEmailLogin);
+        document.getElementById('signup-form').addEventListener('submit', handleEmailSignup);
+        document.getElementById('forgot-form').addEventListener('submit', handlePasswordReset);
+
+        // Social auth
+        document.getElementById('google-auth-btn').addEventListener('click', handleGoogleSignIn);
+        
+        // Form switching links
+        document.querySelector('.show-signup-link').addEventListener('click', (e) => { e.preventDefault(); switchForm('signup'); });
+        document.getElementById('forgot-password-link').addEventListener('click', (e) => { e.preventDefault(); switchForm('forgot'); });
+        document.querySelectorAll('.show-login-link').forEach(link => {
+            link.addEventListener('click', (e) => { e.preventDefault(); switchForm('login'); });
+        });
+        
+        // --- ACCOUNT MODAL & PROFILE UPDATE ---
+        profileContainer.addEventListener('click', () => {
+            if (!currentUser) {
+                document.getElementById('account-name').textContent = 'Guest';
+                document.getElementById('account-email').textContent = 'Please log in';
+                document.getElementById('account-credits').textContent = currentGuestCredits;
+                document.getElementById('account-profile-img').src = `https://ui-avatars.com/api/?name=Guest&background=random&color=fff`;
+                document.getElementById('profileImageForm').style.display = 'none';
+                document.getElementById('logoutBtn').style.display = 'none';
+            } else {
+                document.getElementById('account-name').textContent = currentUser.displayName || 'N/A';
+                document.getElementById('account-email').textContent = currentUser.email;
+                const profilePic = document.getElementById('account-profile-img');
+                const placeholderUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.displayName || currentUser.email)}&background=random&color=fff`;
+                profilePic.src = currentUser.photoURL || placeholderUrl;
+                
+                // Only show "Change Picture" if it's an email/pass account
+                const isProviderUser = currentUser.providerData.some(provider => provider.providerId !== 'password');
+                document.getElementById('profileImageForm').style.display = isProviderUser ? 'none' : 'block';
+                document.getElementById('logoutBtn').style.display = 'block';
+            }
+            document.getElementById('accountModal').classList.remove('hidden');
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            sessionStorage.removeItem('guestCredits');
+            signOut(auth);
+            closeModal('accountModal');
+        });
+
+        document.getElementById('changeProfileImgBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('profileImageInput').click();
+        });
+
+        document.getElementById('profileImageInput').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file || !currentUser) return;
+            showToast('Uploading image...');
+            const storageRef = ref(storage, `profile-images/${currentUser.uid}`);
+            try {
+                await uploadBytes(storageRef, file);
+                const photoURL = await getDownloadURL(storageRef);
+                await updateProfile(currentUser, { photoURL });
+                document.getElementById('account-profile-img').src = photoURL;
+                profileImg.src = photoURL;
+                showToast('Profile picture updated!');
+            } catch (error) {
+                showToast('Failed to upload image.', true);
+                console.error(error);
+            }
+        });
+        
+        // --- MODIFIED: CREDIT & DOWNLOAD LOGIC ---
+        async function useCredits(cost) {
+            if (currentUser) {
+                // Logged-in user logic
+                const userDocRef = doc(db, 'users', currentUser.uid);
+                const docSnap = await getDoc(userDocRef);
+                if (docSnap.exists() && docSnap.data().credits >= cost) {
+                    await updateDoc(userDocRef, { credits: increment(-cost) });
+                    return true;
+                } else {
+                    showToast("Not enough credits! Please buy a pack.", true); 
+                    showMainSection('pricing'); 
+                    return false;
+                }
+            } else {
+                // Anonymous user logic
+                if (currentGuestCredits >= cost) {
+                    currentGuestCredits -= cost;
+                    updateGuestCreditUI();
+                    return true;
+                } else {
+                    showToast("Not enough credits! Please log in for more.", true);
+                    // MODIFIED: Open login modal
+                    document.getElementById('authModal').classList.remove('hidden');
+                    switchForm('login');
+                    return false;
+                }
+            }
+        }
+        
+        document.getElementById('modal-confirm-btn').addEventListener('click', async () => {
+             const success = await useCredits(DOWNLOAD_COST);
+             if (success) {
+                  showToast(`${DOWNLOAD_COST} credit used. Starting download...`);
+                  if (typeof downloadAction === 'function') {
+                        downloadAction();
+                  }
+             }
+             closeModal('download-modal');
+        });
+        document.getElementById('modal-cancel-btn').addEventListener('click', () => closeModal('download-modal'));
+
+        function promptForDownload(fileName, blob) {
+            downloadAction = () => {
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = fileName;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            };
+            document.getElementById('download-modal').classList.remove('hidden');
+        }
+
+        // --- PURCHASE SIMULATION ---
+        document.querySelectorAll('.buy-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                if (!currentUser) {
+                    showToast("Please log in to buy credits.", true);
+                    // MODIFIED: Open login modal
+                    document.getElementById('authModal').classList.remove('hidden');
+                    switchForm('login');
+                    return;
+                }
+                
+                const creditsToSet = parseInt(e.currentTarget.dataset.credits, 10);
+                const userDocRef = doc(db, 'users', currentUser.uid);
+                
+                try {
+                    await updateDoc(userDocRef, { credits: creditsToSet });
+                    showToast(`Purchase successful! You now have ${creditsToSet} credits.`);
+                } catch (error) {
+                    showToast("An error occurred. Please try again.", true);
+                    console.error("Credit purchase simulation error: ", error);
+                }
+            });
+        });
+
+        // --- COMPRESSOR LOGIC (Unchanged) ---
+        const uploadSelection = document.getElementById('uploadSelection');
+        const processingArea = document.getElementById('processingArea');
+        const uploadArea = document.getElementById('uploadArea');
+        const fileUploadInput = document.getElementById('fileUploadInput');
+        let currentFiles = [];
+        let compressionResults = [];
+        let processedFileCount = 0;
+
+        function handleFiles(files) {
+            currentFiles.push(...Array.from(files));
+            compressionResults = new Array(currentFiles.length).fill(null);
+            renderProcessingUI();
+        }
+
+        function renderProcessingUI() {
+            if (currentFiles.length === 0) {
+                resetUI();
+                return;
+            }
+            uploadSelection.classList.add('hidden');
+            processingArea.classList.remove('hidden');
+            if (currentFiles.length === 1) {
+                showSingleFileUI(currentFiles[0]);
+            } else {
+                showBatchUI();
+            }
+        }
+
+        function showSingleFileUI(file) {
+            let previewHTML = '';
+            if (file.type.startsWith('image/')) {
+                previewHTML = `<img src="${URL.createObjectURL(file)}" alt="File preview" class="max-h-48 w-auto object-contain rounded-md mx-auto">`;
+            } else {
+                previewHTML = `<div class="text-8xl text-center py-10">📄</div>`;
+            }
+            
+            const isJPEG = file.type === 'image/jpeg';
+            
+            processingArea.innerHTML = `
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="space-y-4 text-center md:text-left">
+                        <h2 class="text-xl font-bold text-slate-800">Your File</h2>
+                        <div class="bg-slate-50 p-4 rounded-lg border">${previewHTML}</div>
+                        <div class="text-sm">
+                            <p class="font-semibold truncate">${file.name}</p>
+                            <p class="text-slate-500">${formatBytes(file.size)}</p>
+                        </div>
+                        <button id="resetBtn" class="w-full md:w-auto bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 font-semibold py-2 px-4 rounded-lg text-sm">Start Over</button>
+                    </div>
+                    <div class="space-y-6">
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-800">Compression Level</h2>
+                            <div id="compressionLevels" class="space-y-3 mt-3">
+                                <label class="block p-3 rounded-lg border-2 border-slate-200 cursor-pointer has-[:checked]:border-indigo-600 has-[:checked]:ring-1 has-[:checked]:ring-indigo-500 smooth-transition">
+                                    <input type="radio" name="compression-level" value="extreme" class="hidden">
+                                    <span class="font-semibold text-sm block">Extreme Compression</span>
+                                    <span class="text-xs text-slate-500">Less quality, high compression.</span>
+                                </label>
+                                <label class="block p-3 rounded-lg border-2 border-slate-200 cursor-pointer has-[:checked]:border-indigo-600 has-[:checked]:ring-1 has-[:checked]:ring-indigo-500 smooth-transition">
+                                    <input type="radio" name="compression-level" value="recommended" class="hidden" checked>
+                                    <span class="font-semibold text-sm block">Recommended Compression</span>
+                                    <span class="text-xs text-slate-500">Good quality, good compression.</span>
+                                </label>
+                                <label class="block p-3 rounded-lg border-2 border-slate-200 cursor-pointer has-[:checked]:border-indigo-600 has-[:checked]:ring-1 has-[:checked]:ring-indigo-500 smooth-transition">
+                                    <input type="radio" name="compression-level" value="less" class="hidden">
+                                    <span class="font-semibold text-sm block">Less Compression</span>
+                                    <span class="text-xs text-slate-500">High quality, less compression.</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div id="targetSizeSection" class="${isJPEG ? '' : 'hidden'}">
+                            <div class="relative"><div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-300"></div></div><div class="relative flex justify-center text-sm"><span class="px-2 bg-white text-slate-500">OR</span></div></div>
+                            <div class="mt-4">
+                                <label for="manualSizeInput" class="block text-sm font-medium text-slate-600">Manually Enter Size (KB)</label>
+                                <input type="number" id="manualSizeInput" placeholder="e.g., 150" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm">
+                            </div>
+                        </div>
+                        <div>
+                             <button id="compressBtn" class="w-full mt-4 flex items-center justify-center text-center p-4 bg-indigo-600 text-white rounded-lg shadow-sm hover:bg-indigo-700 font-semibold text-lg">Compress File</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="resultArea" class="mt-8"></div>
+            `;
+            addProcessingEventListeners();
+        }
+
+        function showBatchUI() {
+            const fileListHTML = currentFiles.map((file, index) => `
+                <div id="file-row-${index}" class="p-2 grid grid-cols-4 gap-2 items-center text-sm border-b">
+                    <div class="flex items-center gap-2 col-span-2">
+                        <div class="w-10 h-10 flex items-center justify-center bg-slate-200 rounded-md text-xl">📄</div>
+                        <div><p class="font-semibold truncate">${file.name}</p><p class="text-slate-500 text-xs">${formatBytes(file.size)}</p></div>
+                    </div>
+                    <div id="file-result-${index}" class="col-span-2 text-right"><span class="text-slate-400">Pending...</span></div>
+                </div>`).join('');
+
+            processingArea.innerHTML = `
+                <div class="grid lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2">
+                        <div class="flex justify-between items-center mb-2">
+                            <h2 class="text-xl font-bold text-slate-800">Your Files (${currentFiles.length})</h2>
+                            <div class="flex gap-2">
+                                 <button id="addMoreBtn" class="text-sm text-indigo-600 hover:text-indigo-800 font-semibold">Add More</button>
+                                 <button id="clearAllBtn" class="text-sm text-red-600 hover:text-red-800 font-semibold">Clear All</button>
+                            </div>
+                        </div>
+                        <div class="bg-white border rounded-lg max-h-96 overflow-y-auto">${fileListHTML}</div>
+                        <div id="zipDownloadArea" class="mt-4 text-center"></div>
+                    </div>
+                    <div class="space-y-6">
+                        <h2 class="text-xl font-bold text-slate-800">Compression Level</h2>
+                        <div class="space-y-3">
+                            <label class="block p-3 rounded-lg border-2 border-slate-200 cursor-pointer has-[:checked]:border-indigo-600"><input type="radio" name="compression-level" value="recommended" class="hidden" checked><span class="font-semibold text-sm block">Recommended</span><span class="text-xs text-slate-500">Good quality</span></label>
+                        </div>
+                        <div><button id="compressBtn" class="w-full mt-4 p-4 bg-indigo-600 text-white rounded-lg shadow-sm hover:bg-indigo-700 font-semibold text-lg">Compress All</button></div>
+                    </div>
+                </div>`;
+            addProcessingEventListeners();
+        }
+
+        function showSingleResult(originalFile, compressedBlob) {
+            const resultArea = document.getElementById('resultArea');
+            const downloadBtnId = `download-btn-${Date.now()}`;
+            const savings = 100 - (compressedBlob.size / originalFile.size * 100);
+
+            resultArea.innerHTML = `<div class="bg-green-50 border-dashed border-2 border-green-200 rounded-xl p-6">
+                <h3 class="text-xl font-bold text-green-800 text-center">Compression Complete!</h3>
+                <div class="flex justify-center gap-6 my-4 text-sm">
+                    <div><div class="text-slate-500">Original</div><div class="font-bold text-lg">${formatBytes(originalFile.size)}</div></div>
+                    <div><div class="text-slate-500">Compressed</div><div class="font-bold text-lg text-green-700">${formatBytes(compressedBlob.size)}</div></div>
+                    <div><div class="text-slate-500">Savings</div><div class="font-bold text-lg text-green-700">${savings.toFixed(1)}%</div></div>
+                </div>
+                <div class="text-center"><button id="${downloadBtnId}" class="bg-green-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-green-700">Download File (1 Credit)</button></div>
+            </div>`;
+            document.getElementById(downloadBtnId).onclick = () => promptForDownload(getCompressedFileName(originalFile.name), compressedBlob);
+            document.getElementById('compressBtn').disabled = true;
+            document.getElementById('compressBtn').textContent = 'Completed';
+        }
+
+        function updateFileResultInList(index, originalFile, compressedBlob) {
+            const resultContainer = document.getElementById(`file-result-${index}`);
+            const savings = 100 - (compressedBlob.size / originalFile.size * 100);
+            compressionResults[index] = { name: getCompressedFileName(originalFile.name), compressedBlob };
+
+            resultContainer.innerHTML = `<div class="flex items-center justify-end gap-2">
+                <div><p class="font-semibold text-green-700">${formatBytes(compressedBlob.size)}</p><p class="text-xs text-green-600">${savings.toFixed(1)}% Saved</p></div>
+                <button data-index="${index}" class="download-single-btn p-2 rounded-md hover:bg-slate-100"><svg class="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg></button>
+            </div>`;
+            
+            processedFileCount++;
+            if (processedFileCount === currentFiles.length) {
+                document.getElementById('compressBtn').disabled = true;
+                document.getElementById('compressBtn').textContent = 'Completed';
+                document.getElementById('zipDownloadArea').innerHTML = `<button id="downloadZipBtn" class="bg-green-600 text-white font-semibold py-3 px-8 rounded-lg hover:bg-green-700">Download All as .ZIP (1 Credit)</button>`;
+                document.getElementById('downloadZipBtn').addEventListener('click', createAndDownloadZip);
+            }
+            document.querySelectorAll('.download-single-btn').forEach(btn => btn.onclick = (e) => {
+                const idx = e.currentTarget.dataset.index;
+                const { name, compressedBlob } = compressionResults[idx];
+                promptForDownload(name, compressedBlob);
+            });
+        }
+        
+        function resetUI() {
+            currentFiles = [];
+            compressionResults = [];
+            processedFileCount = 0;
+            fileUploadInput.value = '';
+            uploadSelection.classList.remove('hidden');
+            processingArea.classList.add('hidden');
+            processingArea.innerHTML = '';
+        }
+        
+        function addProcessingEventListeners() {
+            document.getElementById('resetBtn')?.addEventListener('click', resetUI);
+            document.getElementById('clearAllBtn')?.addEventListener('click', resetUI);
+            document.getElementById('addMoreBtn')?.addEventListener('click', () => fileUploadInput.click());
+            document.getElementById('compressBtn')?.addEventListener('click', processCompression);
+        }
+
+        function getCompressedFileName(originalName) {
+            const dotIndex = originalName.lastIndexOf('.');
+            const name = dotIndex > -1 ? originalName.substring(0, dotIndex) : originalName;
+            return `${name}.gz`;
+        }
+
+        function processCompression() {
+             if (currentFiles.length === 1) processSingleFileCompression();
+             else processBatchCompression();
+        }
+
+        async function processSingleFileCompression() {
+            const compressBtn = document.getElementById('compressBtn');
+            compressBtn.disabled = true;
+            compressBtn.innerHTML = '<span class="animate-pulse">Compressing...</span>';
+            const file = currentFiles[0];
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const compressed = pako.gzip(new Uint8Array(e.target.result));
+                const blob = new Blob([compressed]);
+                showSingleResult(file, blob);
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        async function processBatchCompression() {
+            const compressBtn = document.getElementById('compressBtn');
+            compressBtn.disabled = true;
+            compressBtn.innerHTML = '<span class="animate-pulse">Compressing...</span>';
+            processedFileCount = 0;
+
+            currentFiles.forEach((file, index) => {
+                document.getElementById(`file-result-${index}`).innerHTML = `<span class="text-indigo-500 animate-pulse">...</span>`;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const compressed = pako.gzip(new Uint8Array(e.target.result));
+                    updateFileResultInList(index, file, new Blob([compressed]));
+                };
+                reader.readAsArrayBuffer(file);
+            });
+        }
+        
+        async function createAndDownloadZip() {
+            const zip = new JSZip();
+            compressionResults.forEach(result => {
+                if (result && result.compressedBlob) {
+                    zip.file(result.name, result.compressedBlob);
+                }
+            });
+            const zipBlob = await zip.generateAsync({ type: "blob" });
+            promptForDownload('FileForge-Compressed.zip', zipBlob);
+        }
+
+        // --- UTILS & INITIAL SETUP ---
+        const formatBytes = (bytes, decimals = 2) => {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(decimals < 0 ? 0 : decimals)) + ' ' + sizes[i];
+        };
+
+        uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.classList.add('drag-area-highlight'); });
+        uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag-area-highlight'));
+        uploadArea.addEventListener('drop', (e) => { e.preventDefault(); uploadArea.classList.remove('drag-area-highlight'); handleFiles(e.dataTransfer.files); });
+        document.getElementById('deviceBtn').addEventListener('click', () => fileUploadInput.click());
+        fileUploadInput.addEventListener('change', (e) => handleFiles(e.target.files));
+        
+        document.querySelectorAll('.coming-soon-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.getElementById('comingSoonModal').classList.remove('hidden');
+            });
+        });
+
+        // --- DYNAMIC CONTENT & INITIALIZATION ---
+        const toolData = [
+             { name: 'Compress PDF', category: 'Compress', icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 9V4.5M9 9H4.5M9 9L3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5M15 15l5.25 5.25" /></svg>', color: 'bg-red-500' },
+             { name: 'PDF Converter', category: 'Convert', icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" /></svg>', color: 'bg-red-500' },
+             { name: 'AI PDF Assistant', category: 'AI PDF', icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z" /></svg>', color: 'bg-blue-500', isPremium: true },
+             { name: 'Chat with PDF', category: 'AI PDF', icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12c0 4.556-4.03 8.25-9 8.25a9.76 9.76 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" /></svg>', color: 'bg-blue-500', isPremium: true },
+             { name: 'Merge PDF', category: 'Organize', icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9.75h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5m-16.5-1.5a1.5 1.5 0 0 1-1.5-1.5V6.75A1.5 1.5 0 0 1 3.75 5.25h16.5a1.5 1.5 0 0 1 1.5 1.5v10.5a1.5 1.5 0 0 1-1.5 1.5H3.75Z" /></svg>', color: 'bg-purple-500' },
+             { name: 'Split PDF', category: 'Organize', icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m-4.875-6.375h9.75" /><path d="M19.5 21a2.25 2.25 0 0 0 2.25-2.25V5.25A2.25 2.25 0 0 0 19.5 3H4.5A2.25 2.25 0 0 0 2.25 5.25v13.5A2.25 2.25 0 0 0 4.5 21h15Z" /></svg>', color: 'bg-purple-500' },
+             { name: 'PDF to Word', category: 'Convert from PDF', icon: '<div class="font-bold text-lg">W</div>', color: 'bg-blue-600' },
+             { name: 'Sign PDF', category: 'Sign', icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z" /></svg>', color: 'bg-pink-500' }
+        ];
+        
+        function updateToolLocks() {
+            document.querySelectorAll('.tool-link[data-premium="true"]').forEach(link => {
+                if (currentUser) {
+                    link.classList.remove('locked');
+                    link.title = "";
+                } else {
+                    link.classList.add('locked');
+                    link.title = "Login to use";
+                }
+            });
+        }
+
+        function renderTools() {
+            const container = document.getElementById('all-tools-container');
+            const groupedTools = toolData.reduce((acc, tool) => {
+                (acc[tool.category] = acc[tool.category] || []).push(tool);
+                return acc;
+            }, {});
+
+            container.innerHTML = Object.entries(groupedTools).map(([category, tools]) => `
+                <div>
+                    <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">${category}</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        ${tools.map(tool => {
+                            const isPremium = tool.isPremium || false;
+                            const lockIcon = isPremium ? `<span class="premium-lock absolute top-2 right-2 text-slate-400 p-1 bg-white/50 rounded-full"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 0 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" /></svg></span>` : '';
+                            
+                            return `
+                            <a href="#" class="tool-link relative flex items-center gap-4 p-4 rounded-lg hover:bg-slate-100 border bg-white" data-tool="${tool.name}" data-premium="${isPremium}">
+                                ${lockIcon}
+                                <div class="flex-shrink-0 h-12 w-12 flex items-center justify-center ${tool.color} rounded-lg text-white">
+                                    ${tool.icon}
+                                </div>
+                                <span class="font-semibold text-slate-700">${tool.name}</span>
+                            </a>
+                            `
+                        }).join('')}
+                    </div>
+                </div>
+            `).join('');
+
+            document.querySelectorAll('.tool-link').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const target = e.currentTarget;
+                    const toolName = target.dataset.tool;
+                    const isPremium = target.dataset.premium === 'true';
+
+                    if (isPremium && !currentUser) {
+                        showToast("Please log in to use this feature.", true);
+                        // MODIFIED: Open login modal
+                        document.getElementById('authModal').classList.remove('hidden');
+                        switchForm('login');
+                    } else {
+                        activateTool(toolName);
+                    }
+                });
+            });
+            
+            updateToolLocks();
+        }
+        
+        // --- Navigation ---
+        document.getElementById('homeLink').addEventListener('click', (e) => { e.preventDefault(); showMainSection('home'); });
+        document.getElementById('compressorLinkNav').addEventListener('click', (e) => { e.preventDefault(); showMainSection('compressor'); resetUI(); });
+        document.getElementById('allToolsLinkNav').addEventListener('click', (e) => { e.preventDefault(); showMainSection('all-tools'); });
+        document.getElementById('pricingLinkNav').addEventListener('click', (e) => { e.preventDefault(); showMainSection('pricing'); });
+        document.getElementById('homeGetStartedBtn').addEventListener('click', (e) => { e.preventDefault(); showMainSection('compressor'); });
+        
+        // --- Initial Page Load ---
+        showMainSection('home');
+        renderTools();
+        // RE-ADDED: Setup password toggles
+        setupPasswordFeatures('login-form');
+        setupPasswordFeatures('signup-form');
+        
+    </script>
+</body>
+</html>
