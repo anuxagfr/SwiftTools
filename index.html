@@ -31,7 +31,6 @@
         .delay-1 { animation-delay: 0.2s; }
         .delay-2 { animation-delay: 0.4s; }
         
-        /* Form transition styles from the new UI */
         .form-transition {
             transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out, max-height 0.3s ease-in-out;
             max-height: 1000px;
@@ -43,14 +42,13 @@
             max-height: 0;
         }
 
-        /* --- STYLES FOR PREMIUM TOOLS --- */
         .premium-lock { display: none; }
         .tool-link.locked {
             opacity: 0.7;
-            background-color: #f8fafc; /* slate-50 */
+            background-color: #f8fafc;
         }
         .tool-link.locked:hover {
-            background-color: #f1f5f9; /* slate-100 */
+            background-color: #f1f5f9;
         }
         .tool-link.locked .premium-lock {
             display: block;
@@ -58,6 +56,7 @@
         .tool-link:not(.locked) .premium-lock {
             display: none;
         }
+        #auth-links.auth-hidden { display: none; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800">
@@ -77,7 +76,7 @@
                     </div>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <div id="credit-container" class="hidden items-center space-x-2 bg-indigo-100 text-indigo-700 font-semibold px-3 py-1.5 rounded-full">
+                    <div id="credit-container" class="hidden md:flex items-center space-x-2 bg-indigo-100 text-indigo-700 font-semibold px-3 py-1.5 rounded-full">
                          <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a.75.75 0 01.75.75v.5a.75.75 0 01-1.5 0v-.5A.75.75 0 0110 2zM10 18a.75.75 0 01.75-.75v-.5a.75.75 0 01-1.5 0v.5A.75.75 0 0110 18zM5.106 14.142a.75.75 0 010-1.06l.353-.353a.75.75 0 111.06 1.06l-.353.353a.75.75 0 01-1.06 0zM14.142 5.106a.75.75 0 011.06 0l.353.353a.75.75 0 01-1.06 1.06l-.353-.353a.75.75 0 010-1.06zM18 10a.75.75 0 01-.75.75h-.5a.75.75 0 010-1.5h.5A.75.75 0 0118 10zM2 10a.75.75 0 01.75-.75h.5a.75.75 0 010 1.5h-.5A.75.75 0 012 10zM14.142 14.142a.75.75 0 011.06 0l.353.353a.75.75 0 11-1.06 1.06l-.353-.353a.75.75 0 010-1.06zM5.106 5.106a.75.75 0 010 1.06l-.353.353a.75.75 0 11-1.06-1.06l.353-.353a.75.75 0 011.06 0z" /><path d="M10 5a5 5 0 100 10 5 5 0 000-10zM10 7a3 3 0 100 6 3 3 0 000-6z" /></svg>
                         <span>Credits: <span id="credit-count">00</span></span>
                     </div>
@@ -192,315 +191,6 @@
             </div>
         </section>
 
-<section id="about-us" class="bg-white py-20">
-  <div class="max-w-5xl mx-auto px-6 text-center">
-    <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 mb-6">About SwiftTools</h1>
-    <p class="text-lg text-slate-600 leading-relaxed max-w-3xl mx-auto mb-10">
-      <strong>SwiftTools</strong> is your all-in-one online file toolkit designed to help you 
-      <strong>compress, convert, edit, and manage</strong> your files effortlessly. 
-      Our mission is simple — to make file handling faster, easier, and completely secure, 
-      right from your browser with no installations required.
-    </p>
-
-    <div class="grid md:grid-cols-3 gap-8 mt-12">
-      <div class="p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition">
-        <h3 class="text-xl font-semibold text-indigo-600 mb-3">🚀 Our Mission</h3>
-        <p class="text-slate-600 text-sm leading-relaxed">
-          To empower everyone — from students to professionals — with 
-          simple yet powerful online tools that save time and boost productivity.
-        </p>
-      </div>
-
-      <div class="p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition">
-        <h3 class="text-xl font-semibold text-indigo-600 mb-3">🔒 Our Values</h3>
-        <p class="text-slate-600 text-sm leading-relaxed">
-          We value <strong>security, speed, and simplicity</strong>. 
-          Every process runs securely in your browser, ensuring your files remain private and protected.
-        </p>
-      </div>
-
-      <div class="p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition">
-        <h3 class="text-xl font-semibold text-indigo-600 mb-3">🌍 Our Vision</h3>
-        <p class="text-slate-600 text-sm leading-relaxed">
-          To become the most trusted web platform for all file-related tasks — 
-          giving users the power to work smarter, faster, and with complete confidence.
-        </p>
-      </div>
-    </div>
-
-    <p class="text-slate-500 text-sm mt-12 max-w-2xl mx-auto">
-      Built with 💙 by the <strong>SwiftTools</strong> team — a group of passionate developers 
-      dedicated to building efficient, secure, and user-friendly tools for everyone.
-    </p>
-  </div>
-</section>
-
-        <!-- Contact Us Section -->
-<section id="contact" class="bg-indigo-50 py-20">
-  <div class="max-w-5xl mx-auto px-6 text-center">
-    <h2 class="text-4xl font-extrabold text-slate-900 mb-6">Contact Us</h2>
-    <p class="text-lg text-slate-600 leading-relaxed max-w-3xl mx-auto mb-12">
-      Have questions, feedback, or need support?  
-      Our team at <strong>SwiftTools</strong> is always here to help.
-      Drop us a message below and we’ll get back to you soon!
-    </p>
-
-    <div class="grid md:grid-cols-2 gap-10 text-left">
-      <!-- Contact Info -->
-      <div class="space-y-6">
-        <div class="flex items-start space-x-4">
-          <div class="text-indigo-600">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21.75 6.75V17.25A2.25 2.25 0 0119.5 19.5H4.5A2.25 2.25 0 012.25 17.25V6.75m19.5 0l-9.75 6.75L2.25 6.75" />
-            </svg>
-          </div>
-          <div>
-            <h3 class="font-semibold text-slate-800">Email Support</h3>
-            <p class="text-slate-600 text-sm">Reach us anytime at:</p>
-            <a href="mailto:support@swifttools.com" class="text-indigo-600 font-medium hover:underline">
-              support@swifttools.com
-            </a>
-          </div>
-        </div>
-
-        <div class="flex items-start space-x-4">
-          <div class="text-indigo-600">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.25 6.75L12 12.75l9.75-6M2.25 6.75v10.5A2.25 2.25 0 004.5 19.5h15a2.25 2.25 0 002.25-2.25V6.75" />
-            </svg>
-          </div>
-          <div>
-            <h3 class="font-semibold text-slate-800">General Inquiries</h3>
-            <p class="text-slate-600 text-sm">For partnerships or collaborations:</p>
-            <a href="mailto:info@swifttools.com" class="text-indigo-600 font-medium hover:underline">
-              info@swifttools.com
-            </a>
-          </div>
-        </div>
-
-        <div class="flex items-start space-x-4">
-          <div class="text-indigo-600">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 2.25c5.385 0 9.75 4.365 9.75 9.75S17.385 21.75 12 21.75 2.25 17.385 2.25 12 6.615 2.25 12 2.25zM12 6v6l3 3" />
-            </svg>
-          </div>
-          <div>
-            <h3 class="font-semibold text-slate-800">Response Time</h3>
-            <p class="text-slate-600 text-sm">We usually respond within <strong>24 hours</strong>.</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Contact Form -->
-      <form class="bg-white p-8 rounded-2xl shadow-md border border-slate-200 space-y-5">
-        <div class="grid md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1">Name</label>
-            <input type="text" placeholder="Your name"
-              class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1">Email</label>
-            <input type="email" placeholder="you@example.com"
-              class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-          </div>
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">Subject</label>
-          <input type="text" placeholder="How can we help?"
-            class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">Message</label>
-          <textarea rows="4" placeholder="Write your message here..."
-            class="w-full border border-slate-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
-        </div>
-        <div class="text-center">
-          <button type="submit"
-            class="bg-indigo-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition">
-            Send Message
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-</section>
-<!-- Privacy Policy Section -->
-<section id="privacy" class="bg-white py-20 border-t border-slate-200">
-  <div class="max-w-5xl mx-auto px-6">
-    <h2 class="text-4xl font-extrabold text-slate-900 text-center mb-6">Privacy Policy</h2>
-    <p class="text-lg text-slate-600 text-center max-w-3xl mx-auto mb-12">
-      Your privacy is important to us. This Privacy Policy explains how <strong>SwiftTools</strong> 
-      collects, uses, and protects your information when you use our website and tools.
-    </p>
-
-    <div class="space-y-10 text-slate-700 leading-relaxed">
-      <div>
-        <h3 class="text-2xl font-semibold text-indigo-600 mb-3">1. Information We Collect</h3>
-        <p>
-          We do not collect personal data unless you voluntarily provide it — for example, when you 
-          contact us via email or submit feedback. Our tools work directly in your browser and do not 
-          upload or store your files on our servers.
-        </p>
-      </div>
-
-      <div>
-        <h3 class="text-2xl font-semibold text-indigo-600 mb-3">2. How We Use Your Information</h3>
-        <p>
-          Any information you share (such as your name or email) is used only to respond to your 
-          inquiries or provide support. We never sell, trade, or share your data with third parties.
-        </p>
-      </div>
-
-      <div>
-        <h3 class="text-2xl font-semibold text-indigo-600 mb-3">3. Cookies and Analytics</h3>
-        <p>
-          <strong>SwiftTools</strong> may use basic analytics (such as page visit counts) to improve 
-          our services. These analytics do not identify you personally. You can disable cookies in 
-          your browser settings if you prefer.
-        </p>
-      </div>
-
-      <div>
-        <h3 class="text-2xl font-semibold text-indigo-600 mb-3">4. File Privacy and Security</h3>
-        <p>
-          Your uploaded files (if any) are processed locally in your browser. We do not save, access, 
-          or view your documents, images, or data. Everything you do stays private on your device.
-        </p>
-      </div>
-
-      <div>
-        <h3 class="text-2xl font-semibold text-indigo-600 mb-3">5. Third-Party Services</h3>
-        <p>
-          Some tools or analytics may link to external websites or APIs. We are not responsible for 
-          their privacy practices. We recommend reviewing their policies before interacting with them.
-        </p>
-      </div>
-
-      <div>
-        <h3 class="text-2xl font-semibold text-indigo-600 mb-3">6. Policy Updates</h3>
-        <p>
-          This Privacy Policy may be updated periodically to reflect changes in our services or 
-          practices. Any updates will be posted on this page with a revised effective date.
-        </p>
-      </div>
-
-      <div>
-        <h3 class="text-2xl font-semibold text-indigo-600 mb-3">7. Contact Us</h3>
-        <p>
-          If you have questions about this Privacy Policy or how we handle your data, 
-          please contact us at: 
-          <a href="mailto:privacy@swifttools.com" class="text-indigo-600 font-medium hover:underline">
-            privacy@swifttools.com
-          </a>.
-        </p>
-      </div>
-    </div>
-
-    <p class="text-sm text-slate-500 text-center mt-12">
-      Last updated: October 2025
-    </p>
-  </div>
-</section>
-<!-- Terms & Conditions Section -->
-<section id="terms" class="bg-slate-50 py-20 border-t border-slate-200">
-  <div class="max-w-5xl mx-auto px-6">
-    <h2 class="text-4xl font-extrabold text-slate-900 text-center mb-6">Terms & Conditions</h2>
-    <p class="text-lg text-slate-600 text-center max-w-3xl mx-auto mb-12">
-      Welcome to <strong>SwiftTools</strong>. By accessing or using our website and online tools, 
-      you agree to comply with and be bound by these Terms & Conditions. Please read them carefully.
-    </p>
-
-    <div class="space-y-10 text-slate-700 leading-relaxed">
-      
-      <div>
-        <h3 class="text-2xl font-semibold text-indigo-600 mb-3">1. Acceptance of Terms</h3>
-        <p>
-          By using our website, you confirm that you accept these terms and agree to follow them. 
-          If you do not agree with any part of the terms, you should discontinue using our services immediately.
-        </p>
-      </div>
-
-      <div>
-        <h3 class="text-2xl font-semibold text-indigo-600 mb-3">2. Use of Services</h3>
-        <p>
-          <strong>SwiftTools</strong> provides online tools for file management, such as compression, 
-          conversion, and editing. You agree to use these tools responsibly and only for lawful purposes.  
-          You must not use our services to upload or process harmful, illegal, or copyrighted materials 
-          without authorization.
-        </p>
-      </div>
-
-      <div>
-        <h3 class="text-2xl font-semibold text-indigo-600 mb-3">3. Intellectual Property</h3>
-        <p>
-          All content, trademarks, design, and code on this website are owned by or licensed to 
-          <strong>SwiftTools</strong>. You may not copy, modify, or redistribute any material 
-          without prior written permission.
-        </p>
-      </div>
-
-      <div>
-        <h3 class="text-2xl font-semibold text-indigo-600 mb-3">4. File Privacy and Processing</h3>
-        <p>
-          All file operations (compression, conversion, etc.) are processed directly in your browser.  
-          <strong>SwiftTools</strong> does not upload, store, or view your files. Your data remains 
-          completely private and secure on your device.
-        </p>
-      </div>
-
-      <div>
-        <h3 class="text-2xl font-semibold text-indigo-600 mb-3">5. Limitation of Liability</h3>
-        <p>
-          We strive to ensure accurate and efficient tools, but we do not guarantee that our services 
-          will always be error-free or uninterrupted.  
-          <strong>SwiftTools</strong> is not liable for any loss, damage, or data issues resulting from 
-          the use of our platform.
-        </p>
-      </div>
-
-      <div>
-        <h3 class="text-2xl font-semibold text-indigo-600 mb-3">6. Third-Party Links</h3>
-        <p>
-          Our website may contain links to external sites. We are not responsible for the content, 
-          accuracy, or privacy practices of any third-party websites linked from <strong>SwiftTools</strong>.
-        </p>
-      </div>
-
-      <div>
-        <h3 class="text-2xl font-semibold text-indigo-600 mb-3">7. Account & Access</h3>
-        <p>
-          Some features may require login or user authentication. You are responsible for maintaining 
-          the confidentiality of your credentials and for all activities under your account.
-        </p>
-      </div>
-
-      <div>
-        <h3 class="text-2xl font-semibold text-indigo-600 mb-3">8. Changes to Terms</h3>
-        <p>
-          We may update or modify these Terms & Conditions at any time. The updated version will be 
-          effective immediately upon posting on this page. It is your responsibility to review this page periodically.
-        </p>
-      </div>
-
-      <div>
-        <h3 class="text-2xl font-semibold text-indigo-600 mb-3">9. Contact Information</h3>
-        <p>
-          For questions about these Terms & Conditions, please reach out to us at  
-          <a href="mailto:legal@swifttools.com" class="text-indigo-600 font-medium hover:underline">
-            legal@swifttools.com
-          </a>.
-        </p>
-      </div>
-    </div>
-
-    <p class="text-sm text-slate-500 text-center mt-12">
-      Last updated: October 2025
-    </p>
-  </div>
-</section>
-
-
         <section id="generic-tool-page" class="main-section hidden pt-16 mb-20">
              <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden max-w-5xl mx-auto">
                 <header class="text-center p-6 border-b border-slate-200">
@@ -509,6 +199,17 @@
                 <div class="p-12 text-center">
                     <h2 class="text-xl font-semibold text-slate-800">Feature Coming Soon!</h2>
                     <p class="mt-2 text-slate-600">We're working hard to bring this tool to you. Please check back later.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="content-page" class="main-section hidden pt-16 mb-20">
+             <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden max-w-5xl mx-auto">
+                <header class="text-center p-6 border-b border-slate-200">
+                    <h1 id="content-page-title" class="text-3xl font-bold text-slate-900"></h1>
+                </header>
+                <div class="p-12 text-center">
+                    <p class="mt-2 text-slate-600 text-lg">Our team is currently working on this page. Please check back soon for updates!</p>
                 </div>
             </div>
         </section>
@@ -527,24 +228,25 @@
                 <div>
                     <h3 class="text-sm font-semibold text-slate-900 tracking-wider uppercase">Product</h3>
                     <ul class="mt-4 space-y-4">
-                        <li><a href="#home" class="text-base text-slate-500 hover:text-slate-900">Home</a></li>
-                        <li><a href="#pricing" class="text-base text-slate-500 hover:text-slate-900">Pricing</a></li>
-                        <li><a href="#all-tools" class="text-base text-slate-500 hover:text-slate-900">Tools</a></li>
+                        <li><a href="#home" class="footer-nav-link text-base text-slate-500 hover:text-slate-900">Home</a></li>
+                        <li><a href="#features" data-title="Features" class="footer-nav-link text-base text-slate-500 hover:text-slate-900">Features</a></li>
+                        <li><a href="#pricing" class="footer-nav-link text-base text-slate-500 hover:text-slate-900">Pricing</a></li>
+                        <li><a href="#all-tools" class="footer-nav-link text-base text-slate-500 hover:text-slate-900">Tools</a></li>
                     </ul>
                 </div>
                  <div>
                     <h3 class="text-sm font-semibold text-slate-900 tracking-wider uppercase">Company</h3>
                     <ul class="mt-4 space-y-4">
-                        <li><a href="#about-us" class="text-base text-slate-500 hover:text-slate-900">About us</a></li>
-                        <li><a href="#contact" class="text-base text-slate-500 hover:text-slate-900">Contact us</a></li>
-
+                        <li><a href="#about-us" data-title="About Us" class="footer-nav-link text-base text-slate-500 hover:text-slate-900">About us</a></li>
+                        <li><a href="#contact-us" data-title="Contact Us" class="footer-nav-link text-base text-slate-500 hover:text-slate-900">Contact us</a></li>
+                        <li><a href="#blog" data-title="Blog" class="footer-nav-link text-base text-slate-500 hover:text-slate-900">Blog</a></li>
                     </ul>
                 </div>
                  <div>
                     <h3 class="text-sm font-semibold text-slate-900 tracking-wider uppercase">Legal</h3>
                     <ul class="mt-4 space-y-4">
-                        <li><a href="#privacy" class="text-base text-slate-500 hover:text-slate-900">Privacy Policy</a></li>
-                        <li><a href="#terms" class="text-base text-slate-500 hover:text-slate-900">Terms & Conditions</a></li>
+                        <li><a href="#privacy-policy" data-title="Privacy Policy" class="footer-nav-link text-base text-slate-500 hover:text-slate-900">Privacy Policy</a></li>
+                        <li><a href="#terms-conditions" data-title="Terms & Conditions" class="footer-nav-link text-base text-slate-500 hover:text-slate-900">Terms & Conditions</a></li>
                     </ul>
                 </div>
             </div>
@@ -663,6 +365,11 @@
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-md">
             <h3 class="text-lg font-semibold text-slate-800 p-4 border-b">My Account</h3>
             <div class="p-6 space-y-4">
+                <div class="md:hidden border-b pb-4 mb-4 space-y-2">
+                     <a href="#features" data-title="Features" class="modal-nav-link block p-2 rounded-md text-slate-700 hover:bg-slate-100 hover:text-indigo-600">Features</a>
+                     <a href="#about-us" data-title="About Us" class="modal-nav-link block p-2 rounded-md text-slate-700 hover:bg-slate-100 hover:text-indigo-600">About us</a>
+                     <a href="#contact-us" data-title="Contact Us" class="modal-nav-link block p-2 rounded-md text-slate-700 hover:bg-slate-100 hover:text-indigo-600">Contact us</a>
+                </div>
                 <div class="text-center">
                     <img id="account-profile-img" src="" class="w-24 h-24 rounded-full mx-auto object-cover border-4 border-slate-200">
                     <form id="profileImageForm" class="text-sm mt-2">
@@ -676,6 +383,12 @@
             </div>
             <div class="flex justify-between items-center gap-3 p-4 bg-slate-50 rounded-b-xl">
                 <button id="logoutBtn" class="text-sm text-red-600 hover:text-red-800 font-semibold">Log Out</button>
+                
+                <div id="modal-auth-links" class="hidden items-center gap-2">
+                    <button id="modal-login-btn" class="text-sm text-indigo-600 hover:text-indigo-800 font-semibold">Log In</button>
+                    <button id="modal-signup-btn" class="text-sm bg-indigo-600 text-white font-semibold py-1.5 px-3 rounded-md hover:bg-indigo-700">Sign Up</button>
+                </div>
+
                 <button type="button" class="modal-close-btn bg-indigo-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-indigo-700 text-sm">Close</button>
             </div>
         </div>
@@ -684,13 +397,11 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        // RE-ADDED email/pass auth functions
         import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut, 
                  createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc, onSnapshot, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-        // --- CONFIGURATION ---
         const firebaseConfig = {
             apiKey: "AIzaSyCG_OoDFWPR1viiPZ1yf4FsYPh0HH11YUc",
             authDomain: "swifttools-c0d70.firebaseapp.com",
@@ -704,13 +415,11 @@
         const GUEST_CREDITS_START = 10;
         const DOWNLOAD_COST = 1;
 
-        // --- FIREBASE INITIALIZATION ---
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
         const storage = getStorage(app);
 
-        // --- GLOBAL STATE & DOM ELEMENTS ---
         let currentUser = null;
         let userDocUnsubscribe = null;
         let downloadAction = null; 
@@ -719,16 +428,12 @@
         const toastEl = document.getElementById('toast');
         const creditContainer = document.getElementById('credit-container');
         const creditCountEl = document.getElementById('credit-count');
-        
-        // --- MODIFIED DOM ELEMENTS ---
-        const authLinks = document.getElementById('auth-links'); // Re-added
-        
+        const authLinks = document.getElementById('auth-links');
         const profileContainer = document.getElementById('profile-container');
         const profileImg = document.getElementById('profile-img');
         const defaultAvatar = document.getElementById('default-avatar');
         const mainSections = document.querySelectorAll('.main-section');
 
-        // --- UI FUNCTIONS ---
         function showToast(message, isError = false) {
             toastEl.textContent = message;
             toastEl.style.backgroundColor = isError ? '#ef4444' : '#22c55e';
@@ -747,7 +452,6 @@
             window.scrollTo(0, 0);
         }
 
-        // --- Guest Credit Functions (Unchanged) ---
         function initializeGuestCredits() {
             let credits = sessionStorage.getItem('guestCredits');
             if (credits === null) {
@@ -764,15 +468,12 @@
             sessionStorage.setItem('guestCredits', currentGuestCredits);
         }
 
-        // --- MODIFIED: updateUIForAuthState ---
         function updateUIForAuthState(user) {
-            if (user) { 
-                // User is LOGGED IN
-                authLinks.classList.add('hidden'); // Hide Login/Sign Up
-                profileContainer.classList.remove('hidden');
-                creditContainer.classList.remove('hidden');
-                creditContainer.classList.add('flex');
+            profileContainer.classList.remove('hidden');
 
+            if (user) {
+                authLinks.classList.add('auth-hidden');
+                
                 if (user.photoURL) {
                     profileImg.src = user.photoURL;
                     profileImg.classList.remove('hidden');
@@ -781,13 +482,9 @@
                     profileImg.classList.add('hidden');
                     defaultAvatar.classList.remove('hidden');
                 }
-            } else { 
-                // User is LOGGED OUT (Anonymous)
-                authLinks.classList.remove('hidden'); // Show Login/Sign Up
-                profileContainer.classList.remove('hidden'); // Show default avatar
-                creditContainer.classList.remove('hidden'); // Show guest credits
-                creditContainer.classList.add('flex');
-                
+            } else {
+                authLinks.classList.remove('auth-hidden');
+
                 profileImg.classList.add('hidden');
                 profileImg.src = '';
                 defaultAvatar.classList.remove('hidden');
@@ -812,7 +509,6 @@
             showMainSection('generic-tool-page');
         }
 
-        // --- AUTHENTICATION (Unchanged) ---
         onAuthStateChanged(auth, async (user) => {
             if (userDocUnsubscribe) userDocUnsubscribe();
             
@@ -848,7 +544,6 @@
             }
         }
 
-        // --- RE-ADDED: AUTH HANDLERS ---
         async function handleEmailSignup(e) {
             e.preventDefault();
             if (grecaptcha.getResponse() === "") {
@@ -865,7 +560,6 @@
             try {
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 await updateProfile(userCredential.user, { displayName: name });
-                // initializeUserData will be called by onAuthStateChanged
                 closeModal('authModal');
             } catch (error) { 
                 showToast(error.message, true);
@@ -911,7 +605,6 @@
             }).catch(error => showToast(error.message, true));
         }
 
-        // --- RE-ADDED: AUTH MODAL UI LOGIC ---
         const authModalForms = {
             login: document.getElementById('login-form-container'),
             signup: document.getElementById('signup-form-container'),
@@ -954,7 +647,7 @@
             const toggleButton = form.querySelector('.password-toggle');
             const errorElement = form.querySelector('[id$="-password-error"]');
             const eyeIcon = `<svg class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>`;
-            const eyeSlashIcon = `<svg class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7 1.274-4.057 5.064-7 9.542-7 .847 0 1.67.127 2.452.364m-6.08 6.08a3 3 0 104.243 4.243m-4.243-4.243L8.175 8.175m6.08 6.08L18.825 18.825M12 17.75a5.75 5.75 0 005.75-5.75M12 6.25a5.75 5.75 0 015.75 5.75" /></svg>`;
+            const eyeSlashIcon = `<svg class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7 1.274-4.057 5.064 7-9.542-7 .847 0 1.67.127 2.452.364m-6.08 6.08a3 3 0 104.243 4.243m-4.243-4.243L8.175 8.175m6.08 6.08L18.825 18.825M12 17.75a5.75 5.75 0 005.75-5.75M12 6.25a5.75 5.75 0 015.75 5.75" /></svg>`;
             
             if (toggleButton) {
                 toggleButton.innerHTML = eyeIcon;
@@ -980,30 +673,37 @@
             }
         };
 
-        // --- RE-ADDED: EVENT LISTENERS ---
-        // Auth Triggers
+        // --- EVENT LISTENERS ---
         document.getElementById('loginBtn').addEventListener('click', () => { switchForm('login'); document.getElementById('authModal').classList.remove('hidden'); });
         document.getElementById('signupBtn').addEventListener('click', () => { switchForm('signup'); document.getElementById('authModal').classList.remove('hidden'); });
         document.getElementById('close-auth-modal-btn').addEventListener('click', () => closeModal('authModal'));
         document.querySelectorAll('.modal-close-btn').forEach(btn => btn.addEventListener('click', (e) => e.target.closest('.modal').classList.add('hidden')));
         
-        // Form submissions
+        document.getElementById('modal-login-btn').addEventListener('click', () => {
+            closeModal('accountModal');
+            switchForm('login');
+            document.getElementById('authModal').classList.remove('hidden');
+        });
+        document.getElementById('modal-signup-btn').addEventListener('click', () => {
+            closeModal('accountModal');
+            switchForm('signup');
+            document.getElementById('authModal').classList.remove('hidden');
+        });
+
         document.getElementById('login-form').addEventListener('submit', handleEmailLogin);
         document.getElementById('signup-form').addEventListener('submit', handleEmailSignup);
         document.getElementById('forgot-form').addEventListener('submit', handlePasswordReset);
 
-        // Social auth
         document.getElementById('google-auth-btn').addEventListener('click', handleGoogleSignIn);
         
-        // Form switching links
         document.querySelector('.show-signup-link').addEventListener('click', (e) => { e.preventDefault(); switchForm('signup'); });
         document.getElementById('forgot-password-link').addEventListener('click', (e) => { e.preventDefault(); switchForm('forgot'); });
         document.querySelectorAll('.show-login-link').forEach(link => {
             link.addEventListener('click', (e) => { e.preventDefault(); switchForm('login'); });
         });
         
-        // --- ACCOUNT MODAL & PROFILE UPDATE ---
         profileContainer.addEventListener('click', () => {
+            const modalAuthLinks = document.getElementById('modal-auth-links');
             if (!currentUser) {
                 document.getElementById('account-name').textContent = 'Guest';
                 document.getElementById('account-email').textContent = 'Please log in';
@@ -1011,6 +711,8 @@
                 document.getElementById('account-profile-img').src = `https://ui-avatars.com/api/?name=Guest&background=random&color=fff`;
                 document.getElementById('profileImageForm').style.display = 'none';
                 document.getElementById('logoutBtn').style.display = 'none';
+                modalAuthLinks.classList.remove('hidden');
+                modalAuthLinks.classList.add('flex');
             } else {
                 document.getElementById('account-name').textContent = currentUser.displayName || 'N/A';
                 document.getElementById('account-email').textContent = currentUser.email;
@@ -1018,12 +720,28 @@
                 const placeholderUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.displayName || currentUser.email)}&background=random&color=fff`;
                 profilePic.src = currentUser.photoURL || placeholderUrl;
                 
-                // Only show "Change Picture" if it's an email/pass account
                 const isProviderUser = currentUser.providerData.some(provider => provider.providerId !== 'password');
                 document.getElementById('profileImageForm').style.display = isProviderUser ? 'none' : 'block';
                 document.getElementById('logoutBtn').style.display = 'block';
+                modalAuthLinks.classList.add('hidden');
+                modalAuthLinks.classList.remove('flex');
             }
             document.getElementById('accountModal').classList.remove('hidden');
+        });
+        
+        document.getElementById('accountModal').addEventListener('click', (e) => {
+            const link = e.target.closest('.modal-nav-link');
+            if (!link) return;
+
+            e.preventDefault();
+            const pageTitle = link.dataset.title;
+            
+            if (pageTitle) {
+                document.getElementById('content-page-title').textContent = pageTitle;
+                showMainSection('content-page');
+            }
+            
+            closeModal('accountModal');
         });
 
         document.getElementById('logoutBtn').addEventListener('click', () => {
@@ -1055,10 +773,8 @@
             }
         });
         
-        // --- MODIFIED: CREDIT & DOWNLOAD LOGIC ---
         async function useCredits(cost) {
             if (currentUser) {
-                // Logged-in user logic
                 const userDocRef = doc(db, 'users', currentUser.uid);
                 const docSnap = await getDoc(userDocRef);
                 if (docSnap.exists() && docSnap.data().credits >= cost) {
@@ -1070,14 +786,12 @@
                     return false;
                 }
             } else {
-                // Anonymous user logic
                 if (currentGuestCredits >= cost) {
                     currentGuestCredits -= cost;
                     updateGuestCreditUI();
                     return true;
                 } else {
                     showToast("Not enough credits! Please log in for more.", true);
-                    // MODIFIED: Open login modal
                     document.getElementById('authModal').classList.remove('hidden');
                     switchForm('login');
                     return false;
@@ -1090,7 +804,7 @@
              if (success) {
                   showToast(`${DOWNLOAD_COST} credit used. Starting download...`);
                   if (typeof downloadAction === 'function') {
-                        downloadAction();
+                       downloadAction();
                   }
              }
              closeModal('download-modal');
@@ -1109,12 +823,10 @@
             document.getElementById('download-modal').classList.remove('hidden');
         }
 
-        // --- PURCHASE SIMULATION ---
         document.querySelectorAll('.buy-btn').forEach(btn => {
             btn.addEventListener('click', async (e) => {
                 if (!currentUser) {
                     showToast("Please log in to buy credits.", true);
-                    // MODIFIED: Open login modal
                     document.getElementById('authModal').classList.remove('hidden');
                     switchForm('login');
                     return;
@@ -1133,7 +845,6 @@
             });
         });
 
-        // --- COMPRESSOR LOGIC (Unchanged) ---
         const uploadSelection = document.getElementById('uploadSelection');
         const processingArea = document.getElementById('processingArea');
         const uploadArea = document.getElementById('uploadArea');
@@ -1368,7 +1079,6 @@
             promptForDownload('FileForge-Compressed.zip', zipBlob);
         }
 
-        // --- UTILS & INITIAL SETUP ---
         const formatBytes = (bytes, decimals = 2) => {
             if (bytes === 0) return '0 Bytes';
             const k = 1024;
@@ -1382,15 +1092,7 @@
         uploadArea.addEventListener('drop', (e) => { e.preventDefault(); uploadArea.classList.remove('drag-area-highlight'); handleFiles(e.dataTransfer.files); });
         document.getElementById('deviceBtn').addEventListener('click', () => fileUploadInput.click());
         fileUploadInput.addEventListener('change', (e) => handleFiles(e.target.files));
-        
-        document.querySelectorAll('.coming-soon-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.preventDefault();
-                document.getElementById('comingSoonModal').classList.remove('hidden');
-            });
-        });
 
-        // --- DYNAMIC CONTENT & INITIALIZATION ---
         const toolData = [
              { name: 'Compress PDF', category: 'Compress', icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 9V4.5M9 9H4.5M9 9L3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5M15 15l5.25 5.25" /></svg>', color: 'bg-red-500' },
              { name: 'PDF Converter', category: 'Convert', icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" /></svg>', color: 'bg-red-500' },
@@ -1452,7 +1154,6 @@
 
                     if (isPremium && !currentUser) {
                         showToast("Please log in to use this feature.", true);
-                        // MODIFIED: Open login modal
                         document.getElementById('authModal').classList.remove('hidden');
                         switchForm('login');
                     } else {
@@ -1464,21 +1165,38 @@
             updateToolLocks();
         }
         
-        // --- Navigation ---
         document.getElementById('homeLink').addEventListener('click', (e) => { e.preventDefault(); showMainSection('home'); });
         document.getElementById('compressorLinkNav').addEventListener('click', (e) => { e.preventDefault(); showMainSection('compressor'); resetUI(); });
         document.getElementById('allToolsLinkNav').addEventListener('click', (e) => { e.preventDefault(); showMainSection('all-tools'); });
         document.getElementById('pricingLinkNav').addEventListener('click', (e) => { e.preventDefault(); showMainSection('pricing'); });
         document.getElementById('homeGetStartedBtn').addEventListener('click', (e) => { e.preventDefault(); showMainSection('compressor'); });
         
-        // --- Initial Page Load ---
+        document.querySelector('footer').addEventListener('click', (e) => {
+            const link = e.target.closest('.footer-nav-link');
+            if (!link) return;
+
+            e.preventDefault();
+            const sectionId = link.getAttribute('href').substring(1);
+            const pageTitle = link.dataset.title;
+
+            if (pageTitle) {
+                document.getElementById('content-page-title').textContent = pageTitle;
+                showMainSection('content-page');
+            } else {
+                const section = document.getElementById(sectionId);
+                if (section) {
+                    showMainSection(sectionId);
+                }
+            }
+        });
+        
         showMainSection('home');
         renderTools();
-        // RE-ADDED: Setup password toggles
         setupPasswordFeatures('login-form');
         setupPasswordFeatures('signup-form');
         
     </script>
 </body>
-
 </html>
+
+
