@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cloud File Picker Demo</title>
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(to right, #e3f2fd, #bbdefb);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    h1 {
+      color: #0d47a1;
+      margin-bottom: 30px;
+    }
+    .picker-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      justify-content: center;
+    }
+    button {
+      background-color: #1976d2;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 15px;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background-color: #0d47a1;
+    }
+    input[type="file"] {
+      display: none;
+    }
+    .output {
+      margin-top: 25px;
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+      width: 80%;
+      max-width: 500px;
+      text-align: center;
+      word-wrap: break-word;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🌤 Cloud File Picker Demo</h1>
+  <div class="picker-buttons">
+    <button onclick="loadGooglePicker()">Google Drive</button>
+    <button id="dropbox-btn">Dropbox</button>
+    <button onclick="launchOneDrivePicker()">OneDrive</button>
+    <label for="local-upload" style="background-color:#388e3c;">Upload Local File</label>
+    <input type="file" id="local-upload" onchange="handleLocalFile(event)">
+  </div>
+
+  <div id="output" class="output">No file selected yet.</div>
+
+  <!-- Google Picker -->
+  <script type="text/javascript" src="https://apis.google.com/js/api.js"></script>
+
+  <!-- Dropbox -->
+  <script type="text/javascript"
+    src="https://www.dropbox.com/static/api/2/dropins.js"
+    id="dropboxjs"
+    data-app-key="jqxafclr8kmxfln"></script>
+
+  <!-- OneDrive -->
+  <script type="text/javascript" src="https://js.live.net/v7.2/OneDrive.js"></script>
+
+  <script>
+    // ---------- OUTPUT ----------
+    function showOutput(msg) {
+      document.getElementById("output").innerHTML = msg;
+    }
+
+    // ---------- LOCAL UPLOAD ----------
+    function handleLocalFile(e) {
+      const file = e.target.files[0];
+      if (file) showOutput("📁 Local File Selected: <b>" + file.name + "</b>");
+    }
+
+    // ---------- GOOGLE DRIVE ----------
+    const GOOGLE_CLIENT_ID = "757396308563-krve2dgotupr2dgim1l2fmvds8ehoe7n.apps.googleusercontent.com";
+    const GOOGLE_API_KEY = "AIzaSyDhyxPL2wKtE2FRMZra6ba65_2V3hqmIvo";
+    const GOOGLE_APP_ID = "757396308563";
+    const SCOPES = ['https://www.googleapis.com/auth/drive.file'];
+
+    let pickerApiLoaded = false;
+    let oauthToken;
+
+    function loadGooglePicker() {
+      gapi.load('auth', { 'callback': onAuthApiLoad });
+      gapi.load('picker', { 'callback': onPickerApiLoad });
+    }
+
+    function onAuthApiLoad() {
+      gapi.auth.authorize({
+        'client_id': GOOGLE_CLIENT_ID,
+        'scope': SCOPES,
+        'immediate': false
+      }, handleAuthResult);
+    }
+
+    function onPickerApiLoad() { pickerApiLoaded = true; createPicker(); }
+
+    function handleAuthResult(authResult) {
+      if (authResult && !authResult.error) {
+        oauthToken = authResult.access_token;
+        createPicker();
+      }
+    }
+
+    function createPicker() {
+      if (pickerApiLoaded && oauthToken) {
+        const picker = new google.picker.PickerBuilder()
+          .addView(google.picker.ViewId.DOCS)
+          .setOAuthToken(oauthToken)
+          .setDeveloperKey(GOOGLE_API_KEY)
+          .setCallback(pickerCallback)
+          .build();
+        picker.setVisible(true);
+      }
+    }
+
+    function pickerCallback(data) {
+      if (data.action === google.picker.Action.PICKED) {
+        const file = data.docs[0];
+        showOutput("📂 Google Drive File: <b>" + file.name + "</b><br>ID: " + file.id);
+      }
+    }
+
+    // ---------- DROPBOX ----------
+    document.getElementById("dropbox-btn").onclick = function () {
+      Dropbox.choose({
+        success: function (files) {
+          showOutput("📦 Dropbox File: <b>" + files[0].name + "</b><br>Link: " + files[0].link);
+        },
+        linkType: "preview",
+        multiselect: false
+      });
+    };
+
+    // ---------- ONEDRIVE ----------
+    function launchOneDrivePicker() {
+      const odOptions = {
+        clientId: "YOUR_ONEDRIVE_CLIENT_ID",
+        action: "download",
+        multiSelect: false,
+        success: function (files) {
+          showOutput("☁️ OneDrive File: <b>" + files.value[0].name + "</b>");
+        },
+        cancel: function () { showOutput("❌ OneDrive picker cancelled."); },
+        error: function (e) { showOutput("⚠️ OneDrive Error: " + e.message); }
+      };
+      OneDrive.open(odOptions);
+    }
+  </script>
+</body>
+</html>
