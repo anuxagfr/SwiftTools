@@ -116,13 +116,19 @@
             <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden max-w-5xl mx-auto">
                 <header class="text-center p-6 border-b border-slate-200">
                     <h1 class="text-3xl font-bold text-slate-900">File Compressor</h1>
-                    <p class="text-slate-500 mt-2">Compress files for free. You have 10 free guest credits.</p>
+           <section id="compressor" class="main-section mb-20">
+            <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden max-w-5xl mx-auto">
+                <header class="text-center p-6 border-b border-slate-200">
+                    <h1 class="text-3xl font-bold text-slate-900">File Compressor</h1>
+                    <p class="text-slate-500 mt-2">Compress single or multiple files at once. Fast, private, and free.</p>
                 </header>
                 <div class="p-6 md:p-8">
                     <div id="uploadSelection">
-                        <div class="grid md:grid-cols-2 gap-8 items-center">
+                         <div class="grid md:grid-cols-2 gap-8 items-center">
                             <div id="uploadArea" class="relative block w-full h-full min-h-[300px] rounded-lg border-2 border-dashed border-slate-300 p-6 text-center hover:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 smooth-transition flex flex-col justify-center items-center">
-                                <svg class="mx-auto h-12 w-12 text-slate-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true"><path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                                <svg class="mx-auto h-12 w-12 text-slate-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                                </svg>
                                 <span class="mt-4 block text-sm font-semibold text-slate-700">Drag & Drop File(s) Here</span>
                                 <span class="mt-1 block text-xs text-slate-500">Supports Images, PDF, TXT, and more</span>
                             </div>
@@ -131,14 +137,40 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
                                     Choose File(s) from Device
                                 </button>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <button id="urlBtn" class="w-full flex items-center p-3 bg-slate-100 hover:bg-slate-200 rounded-lg smooth-transition text-sm font-medium">
+                                       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-slate-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0m-2.828-2.828a2 2 0 012.828 0l3 3a2 2 0 010 2.828l-3 3a2 2 0 01-2.828-2.828l3-3a2 2 0 010-2.828zM10 5a1 1 0 100-2 1 1 0 000 2zM10 15a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" /></svg>
+                                       Add from URL
+                                    </button>
+                                    <button id="clipboardBtn" class="w-full flex items-center p-3 bg-slate-100 hover:bg-slate-200 rounded-lg smooth-transition text-sm font-medium">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-slate-500" viewBox="0 0 20 20" fill="currentColor"><path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" /><path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" /></svg>
+                                        Paste Image
+                                    </button>
+                                </div>
+                                 <div class="relative">
+                                    <div class="absolute inset-0 flex items-center" aria-hidden="true"><div class="w-full border-t border-slate-300"></div></div>
+                                    <div class="relative flex justify-center"><span class="bg-white px-2 text-xs text-slate-500">Cloud Storage</span></div>
+                                </div>
+                                <div class="grid grid-cols-3 gap-3">
+                                     <button class="cloud-btn w-full flex items-center p-3 bg-slate-100 hover:bg-slate-200 rounded-lg smooth-transition text-sm font-medium opacity-60 cursor-not-allowed">
+                                        <img src="https://placehold.co/20x20/4285F4/FFFFFF?text=G" class="w-5 h-5 mr-2" alt="Google Drive icon"> Drive
+                                     </button>
+                                     <button class="cloud-btn w-full flex items-center p-3 bg-slate-100 hover:bg-slate-200 rounded-lg smooth-transition text-sm font-medium opacity-60 cursor-not-allowed">
+                                         <img src="https://placehold.co/20x20/0061FE/FFFFFF?text=D" class="w-5 h-5 mr-2" alt="Dropbox icon"> Dropbox
+                                     </button>
+                                     <button class="cloud-btn w-full flex items-center p-3 bg-slate-100 hover:bg-slate-200 rounded-lg smooth-transition text-sm font-medium opacity-60 cursor-not-allowed">
+                                        <img src="https://placehold.co/20x20/0078D4/FFFFFF?text=O" class="w-5 h-5 mr-2" alt="OneDrive icon"> OneDrive
+                                     </button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div id="processingArea" class="hidden"></div>
+                    <div id="processingArea" class="hidden">
+                        <!-- This section is populated by JS -->
+                    </div>
                 </div>
             </div>
         </section>
-        
         <section id="all-tools" class="main-section pt-16 mb-20">
             <div class="max-w-7xl mx-auto">
                 <header class="text-center mb-16">
