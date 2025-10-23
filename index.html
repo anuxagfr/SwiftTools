@@ -11,6 +11,12 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Cloud Picker SDKs -->
+    <script type="text/javascript" src="https://apis.google.com/js/api.js"></script>
+    <script type="text/javascript" src="https://www.dropbox.com/static/api/2/dropins.js" id="dropboxjs" data-app-key="jqxafclr8kmxfln"></script>
+    <!-- OneDrive SDK removed -->
+
     <style>
         body { font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
         .drag-area-highlight { background-color: #e0f2fe; border-color: #0284c7; }
@@ -102,7 +108,7 @@
                     Your Complete Online File Toolkit
                 </h1>
                 <p class="fade-in-up delay-1 mt-6 max-w-3xl mx-auto text-lg text-slate-600">
-                    Effortlessly compress, convert, edit, and manage all your files in one secure place. Fast, free, and entirely in your browser.
+                    Effortlessly compress, convert, edit, and manage all your files in one secure place. Fast, private, and entirely in your browser.
                 </p>
                 <div class="fade-in-up delay-2 mt-10">
                     <a href="#compressor" id="homeGetStartedBtn" class="bg-indigo-600 text-white font-bold py-4 px-10 rounded-lg shadow-lg hover:bg-indigo-700 smooth-transition text-lg">
@@ -114,59 +120,59 @@
 
 
            <section id="compressor" class="main-section mb-20">
-            <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden max-w-5xl mx-auto">
-                <header class="text-center p-6 border-b border-slate-200">
-                    <h1 class="text-3xl font-bold text-slate-900">File Compressor</h1>
-                    <p class="text-slate-500 mt-2">Compress single or multiple files at once. Fast, private, and free.</p>
-                </header>
-                <div class="p-6 md:p-8">
-                    <div id="uploadSelection">
-                         <div class="grid md:grid-cols-2 gap-8 items-center">
-                            <div id="uploadArea" class="relative block w-full h-full min-h-[300px] rounded-lg border-2 border-dashed border-slate-300 p-6 text-center hover:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 smooth-transition flex flex-col justify-center items-center">
-                                <svg class="mx-auto h-12 w-12 text-slate-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
-                                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-                                </svg>
-                                <span class="mt-4 block text-sm font-semibold text-slate-700">Drag & Drop File(s) Here</span>
-                                <span class="mt-1 block text-xs text-slate-500">Supports Images, PDF, TXT, and more</span>
-                            </div>
-                            <div class="space-y-3">
-                                <button id="deviceBtn" class="w-full flex items-center justify-center text-center p-4 bg-indigo-600 text-white rounded-lg shadow-sm hover:bg-indigo-700 smooth-transition font-semibold">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
-                                    Choose File(s) from Device
-                                </button>
-                                <div class="grid grid-cols-2 gap-3">
-                                    <button id="urlBtn" class="w-full flex items-center p-3 bg-slate-100 hover:bg-slate-200 rounded-lg smooth-transition text-sm font-medium">
-                                       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-slate-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0m-2.828-2.828a2 2 0 012.828 0l3 3a2 2 0 010 2.828l-3 3a2 2 0 01-2.828-2.828l3-3a2 2 0 010-2.828zM10 5a1 1 0 100-2 1 1 0 000 2zM10 15a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" /></svg>
-                                       Add from URL
-                                    </button>
-                                    <button id="clipboardBtn" class="w-full flex items-center p-3 bg-slate-100 hover:bg-slate-200 rounded-lg smooth-transition text-sm font-medium">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-slate-500" viewBox="0 0 20 20" fill="currentColor"><path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" /><path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" /></svg>
-                                        Paste Image
-                                    </button>
-                                </div>
-                                 <div class="relative">
-                                    <div class="absolute inset-0 flex items-center" aria-hidden="true"><div class="w-full border-t border-slate-300"></div></div>
-                                    <div class="relative flex justify-center"><span class="bg-white px-2 text-xs text-slate-500">Cloud Storage</span></div>
-                                </div>
-                                <div class="grid grid-cols-3 gap-3">
-                                     <button class="cloud-btn w-full flex items-center p-3 bg-slate-100 hover:bg-slate-200 rounded-lg smooth-transition text-sm font-medium opacity-60 cursor-not-allowed">
-                                        <img src="https://placehold.co/20x20/4285F4/FFFFFF?text=G" class="w-5 h-5 mr-2" alt="Google Drive icon"> Drive
-                                     </button>
-                                     <button class="cloud-btn w-full flex items-center p-3 bg-slate-100 hover:bg-slate-200 rounded-lg smooth-transition text-sm font-medium opacity-60 cursor-not-allowed">
-                                         <img src="https://placehold.co/20x20/0061FE/FFFFFF?text=D" class="w-5 h-5 mr-2" alt="Dropbox icon"> Dropbox
-                                     </button>
-                                     <button class="cloud-btn w-full flex items-center p-3 bg-slate-100 hover:bg-slate-200 rounded-lg smooth-transition text-sm font-medium opacity-60 cursor-not-allowed">
-                                        <img src="https://placehold.co/20x20/0078D4/FFFFFF?text=O" class="w-5 h-5 mr-2" alt="OneDrive icon"> OneDrive
-                                     </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="processingArea" class="hidden">
-                        <!-- This section is populated by JS -->
-                    </div>
-                </div>
-            </div>
+             <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden max-w-5xl mx-auto">
+                 <header class="text-center p-6 border-b border-slate-200">
+                     <h1 class="text-3xl font-bold text-slate-900">File Compressor</h1>
+                     <p class="text-slate-500 mt-2">Compress single or multiple files at once. Fast, private, and free.</p>
+                 </header>
+                 <div class="p-6 md:p-8">
+                     <div id="uploadSelection">
+                          <div class="grid md:grid-cols-2 gap-8 items-center">
+                              <div id="uploadArea" class="relative block w-full h-full min-h-[300px] rounded-lg border-2 border-dashed border-slate-300 p-6 text-center hover:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 smooth-transition flex flex-col justify-center items-center">
+                                  <svg class="mx-auto h-12 w-12 text-slate-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                                      <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                                  </svg>
+                                  <span class="mt-4 block text-sm font-semibold text-slate-700">Drag & Drop File(s) Here</span>
+                                  <span class="mt-1 block text-xs text-slate-500">Supports Images, PDF, TXT, and more</span>
+                              </div>
+                              <div class="space-y-3">
+                                  <button id="deviceBtn" class="w-full flex items-center justify-center text-center p-4 bg-indigo-600 text-white rounded-lg shadow-sm hover:bg-indigo-700 smooth-transition font-semibold">
+                                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
+                                      Choose File(s) from Device
+                                  </button>
+                                  <div class="grid grid-cols-2 gap-3">
+                                      <button id="urlBtn" class="w-full flex items-center p-3 bg-slate-100 hover:bg-slate-200 rounded-lg smooth-transition text-sm font-medium">
+                                          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-slate-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0m-2.828-2.828a2 2 0 012.828 0l3 3a2 2 0 010 2.828l-3 3a2 2 0 01-2.828-2.828l3-3a2 2 0 010-2.828zM10 5a1 1 0 100-2 1 1 0 000 2zM10 15a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" /></svg>
+                                          Add from URL
+                                      </button>
+                                      <button id="clipboardBtn" class="w-full flex items-center p-3 bg-slate-100 hover:bg-slate-200 rounded-lg smooth-transition text-sm font-medium">
+                                           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-slate-500" viewBox="0 0 20 20" fill="currentColor"><path d="M8 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z" /><path d="M6 3a2 2 0 00-2 2v11a2 2 0 002 2h8a2 2 0 002-2V5a2 2 0 00-2-2 3 3 0 01-3 3H9a3 3 0 01-3-3z" /></svg>
+                                           Paste Image
+                                      </button>
+                                  </div>
+                                   <div class="relative">
+                                       <div class="absolute inset-0 flex items-center" aria-hidden="true"><div class="w-full border-t border-slate-300"></div></div>
+                                       <div class="relative flex justify-center"><span class="bg-white px-2 text-xs text-slate-500">Cloud Storage</span></div>
+                                   </div>
+                                  <div class="grid grid-cols-2 gap-3"> <!-- Changed grid-cols-3 to grid-cols-2 -->
+                                       <button id="driveBtn" class="cloud-btn w-full flex items-center justify-center p-3 bg-slate-100 hover:bg-slate-200 rounded-lg smooth-transition text-sm font-medium">
+                                           <svg class="w-5 h-5 mr-2" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><path d="M38.5,12.5l-13.9,24l-14,-24h27.9Z" fill="#ffc107"/><path d="M24.6,36.5l14.2,-24.1l-28.2,0l14,24.1Z" fill="#ffeb3b"/><path d="M10.5,12.5l14,24l14,-24l-28,0Z" fill="#4caf50"/></svg>
+                                           Drive
+                                       </button>
+                                       <button id="dropboxBtn" class="cloud-btn w-full flex items-center justify-center p-3 bg-slate-100 hover:bg-slate-200 rounded-lg smooth-transition text-sm font-medium">
+                                           <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="#0061FE" xmlns="http://www.w3.org/2000/svg"><path d="M6.331 4.282l5.666-3.856 5.668 3.856-5.668 3.857L6.33 4.282zm11.334 5.23L12 13.368l-5.665-3.856L.668 13.368l5.663 3.856 5.668-3.856 5.667 3.856 5.667-3.856-5.667-3.856zM12 15.29l5.667 3.856v-5.23L12 10.06l-5.665 3.856v5.23l5.665-3.856z"/></svg>
+                                           Dropbox
+                                       </button>
+                                       <!-- OneDrive Button Removed -->
+                                  </div>
+                              </div>
+                          </div>
+                     </div>
+                     <div id="processingArea" class="hidden">
+                         <!-- This section is populated by JS -->
+                     </div>
+                 </div>
+             </div>
         </section>
         <section id="all-tools" class="main-section pt-16 mb-20">
             <div class="max-w-7xl mx-auto">
@@ -263,14 +269,17 @@
                         <li><a href="#all-tools" class="footer-nav-link text-base text-slate-500 hover:text-slate-900">Tools</a></li>
                     </ul>
                 </div>
+                 <!-- Company Section Added Back -->
                  <div>
                     <h3 class="text-sm font-semibold text-slate-900 tracking-wider uppercase">Company</h3>
                     <ul class="mt-4 space-y-4">
-                        <li><a href="#about-us" data-title="About Us" class="footer-nav-link text-base text-slate-500 hover:text-slate-900">About us</a></li>
-                        <li><a href="#contact-us" data-title="Contact Us" class="footer-nav-link text-base text-slate-500 hover:text-slate-900">Contact us</a></li>
-                        <li><a href="#blog" data-title="Blog" class="footer-nav-link text-base text-slate-500 hover:text-slate-900">Blog</a></li>
+                        <li><a href="https://anuxagfr.github.io/SwiftTools/about.html" target="_blank" class="footer-nav-link text-base text-slate-500 hover:text-slate-900">About us</a></li>
+                        <li><a href="https://anuxagfr.github.io/SwiftTools/contact.html" target="_blank" class="footer-nav-link text-base text-slate-500 hover:text-slate-900">Contact us</a></li>
+                        <!-- If you add a blog later, you can put the link here -->
+                        <!-- <li><a href="#blog" data-title="Blog" class="footer-nav-link text-base text-slate-500 hover:text-slate-900">Blog</a></li> -->
                     </ul>
                 </div>
+                 <!-- Legal Section Added Back -->
                  <div>
                     <h3 class="text-sm font-semibold text-slate-900 tracking-wider uppercase">Legal</h3>
                     <ul class="mt-4 space-y-4">
@@ -396,8 +405,8 @@
             <div class="p-6 space-y-4">
                 <div class="md:hidden border-b pb-4 mb-4 space-y-2">
                      <a href="#features" data-title="Features" class="modal-nav-link block p-2 rounded-md text-slate-700 hover:bg-slate-100 hover:text-indigo-600">Features</a>
-                     <a href="#about-us" data-title="About Us" class="modal-nav-link block p-2 rounded-md text-slate-700 hover:bg-slate-100 hover:text-indigo-600">About us</a>
-                     <a href="#contact-us" data-title="Contact Us" class="modal-nav-link block p-2 rounded-md text-slate-700 hover:bg-slate-100 hover:text-indigo-600">Contact us</a>
+                     <a href="https://anuxagfr.github.io/SwiftTools/about.html" data-title="About Us" class="modal-nav-link block p-2 rounded-md text-slate-700 hover:bg-slate-100 hover:text-indigo-600">About us</a>
+                     <a href="https://anuxagfr.github.io/SwiftTools/contact.html" data-title="Contact Us" class="modal-nav-link block p-2 rounded-md text-slate-700 hover:bg-slate-100 hover:text-indigo-600">Contact us</a>
                 </div>
                 <div class="text-center">
                     <img id="account-profile-img" src="" class="w-24 h-24 rounded-full mx-auto object-cover border-4 border-slate-200">
@@ -432,7 +441,7 @@
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
         const firebaseConfig = {
-            apiKey: "AIzaSyCG_OoDFWPR1viiPZ1yf4FsYPh0HH11YUc",
+            apiKey: "AIzaSyCG_OoDFWPR1viiPZ1yf4FsYPh0HH11YUc", // IMPORTANT: Keep API keys secure in production!
             authDomain: "swifttools-c0d70.firebaseapp.com",
             projectId: "swifttools-c0d70",
             storageBucket: "swifttools-c0d70.appspot.com",
@@ -443,6 +452,7 @@
         const FREE_TOKENS_ON_SIGNUP = 15;
         const GUEST_CREDITS_START = 10;
         const DOWNLOAD_COST = 1;
+        // const SUMMARIZE_COST = 1; // Example: Add cost for summarization if needed
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
@@ -672,13 +682,14 @@
 
         const setupPasswordFeatures = (formId) => {
             const form = document.getElementById(formId);
+            if (!form) return; // Add check if form exists
             const passwordInput = form.querySelector('input[type="password"]');
             const toggleButton = form.querySelector('.password-toggle');
             const errorElement = form.querySelector('[id$="-password-error"]');
             const eyeIcon = `<svg class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>`;
             const eyeSlashIcon = `<svg class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7 1.274-4.057 5.064 7-9.542-7 .847 0 1.67.127 2.452.364m-6.08 6.08a3 3 0 104.243 4.243m-4.243-4.243L8.175 8.175m6.08 6.08L18.825 18.825M12 17.75a5.75 5.75 0 005.75-5.75M12 6.25a5.75 5.75 0 015.75 5.75" /></svg>`;
             
-            if (toggleButton) {
+            if (toggleButton && passwordInput) { // Check if elements exist
                 toggleButton.innerHTML = eyeIcon;
                 toggleButton.addEventListener('click', () => {
                     if (passwordInput.type === 'password') {
@@ -691,7 +702,7 @@
                 });
             }
 
-            if (errorElement) {
+            if (errorElement && passwordInput) { // Check if elements exist
                 passwordInput.addEventListener('keyup', () => {
                     if (passwordInput.value.length > 0 && passwordInput.value.length < 8) {
                         errorElement.classList.remove('hidden');
@@ -701,90 +712,338 @@
                 });
             }
         };
+        
+        // --- CLOUD PICKER LOGIC ---
+
+        // 1. Google Drive Picker (Replaced with older gapi.auth flow as requested)
+        const GOOGLE_CLIENT_ID = "757396308563-krve2dgotupr2dgim1l2fmvds8ehoe7n.apps.googleusercontent.com";
+        const GOOGLE_API_KEY = "AIzaSyDhyxPL2wKtE2FRMZra6ba65_2V3hqmIvo";
+        const SCOPES = ['https://www.googleapis.com/auth/drive.file']; // Using 'drive.file' scope as provided
+
+        let pickerApiLoaded = false;
+        let oauthToken; // This will be set by gapi.auth
+
+        function loadGooglePicker() {
+            // Load the 'auth' and 'picker' libraries.
+            gapi.load('auth', { 'callback': onAuthApiLoad });
+            gapi.load('picker', { 'callback': onPickerApiLoad });
+        }
+
+        function onAuthApiLoad() {
+            // This is the deprecated auth flow.
+            gapi.auth.authorize({
+                'client_id': GOOGLE_CLIENT_ID,
+                'scope': SCOPES,
+                'immediate': false
+            }, handleAuthResult);
+        }
+
+        function onPickerApiLoad() { 
+            pickerApiLoaded = true; 
+            createPicker(); // Try to create picker (will wait for oauthToken)
+        }
+
+        function handleAuthResult(authResult) {
+            if (authResult && !authResult.error) {
+                oauthToken = authResult.access_token; // Store the token
+                createPicker(); // Now create the picker since we have the token
+            } else {
+                console.error("Google Auth Error:", authResult.error);
+                showToast("Google authentication failed.", true);
+            }
+        }
+
+        function createPicker() {
+            // Wait until both the picker API is loaded AND we have an auth token.
+            if (pickerApiLoaded && oauthToken) {
+                const view = new google.picker.View(google.picker.ViewId.DOCS);
+                // Set mime types to filter for relevant files
+                view.setMimeTypes("image/png,image/jpeg,image/jpg,application/pdf,text/plain");
+
+                const picker = new google.picker.PickerBuilder()
+                    .addView(view) // Use our configured view
+                    .setOAuthToken(oauthToken) // Use the token from gapi.auth
+                    .setDeveloperKey(GOOGLE_API_KEY)
+                    .setCallback(pickerCallback) // Set our custom callback
+                    .build();
+                picker.setVisible(true);
+            }
+        }
+
+        function pickerCallback(data) {
+            // Use the older `data.action` check
+            if (data.action === google.picker.Action.PICKED) {
+                const doc = data.docs[0]; // Use the older `data.docs` structure
+                const fileId = doc.id;
+                const fileName = doc.name;
+
+                showToast(`Fetching ${fileName}...`);
+                
+                // Use the stored oauthToken to make a manual fetch request
+                const url = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`;
+                fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${oauthToken}` // Pass the token
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Google Drive fetch error: ${response.statusText} (${response.status})`);
+                    }
+                    const contentType = response.headers.get('content-type') || 'application/octet-stream';
+                    return response.blob().then(blob => ({blob, contentType}));
+                })
+                .then(({blob, contentType}) => {
+                    const file = new File([blob], fileName, { type: contentType });
+                    handleFiles([file]); // Pass the fetched file to our app's handler
+                })
+                .catch(err => {
+                    console.error("Google Drive fetch error: ", err);
+                    showToast("Failed to download file from Google Drive.", true);
+                });
+            
+            } else if (data.action === google.picker.Action.CANCEL) {
+                showToast("Google Drive selection cancelled.");
+            }
+        }
+
+
+        // 2. Dropbox Picker
+        function launchDropboxPicker() {
+            Dropbox.choose({
+                success: function(files) {
+                    const fileInfo = files[0];
+                    // Dropbox 'direct' link should work for fetch if configured correctly
+                    const url = fileInfo.link; // Use the direct link provided
+                     showToast(`Fetching ${fileInfo.name}...`);
+                    fetch(url) // Fetch directly from the provided link
+                        .then(res => {
+                            if (!res.ok) {
+                                throw new Error(`HTTP error! status: ${res.status}`);
+                            }
+                            return res.blob();
+                        })
+                        .then(blob => {
+                            // Try to infer mime type if not obvious, default if necessary
+                            const mimeType = blob.type || 'application/octet-stream';
+                            const file = new File([blob], fileInfo.name, { type: mimeType });
+                            handleFiles([file]);
+                        })
+                        .catch(err => {
+                            console.error("Dropbox fetch error: ", err);
+                            // Provide more specific feedback if possible
+                            showToast("Failed to download file from Dropbox. Check link permissions?", true);
+                        });
+                },
+                linkType: "direct", // Request a direct download link
+                multiselect: false,
+                 // Add extensions filter if desired
+                 // extensions: ['.pdf', '.txt', '.jpg', '.png'],
+            });
+        }
+
+        // 3. OneDrive Picker - Removed
+
+        // --- GEMINI API INTEGRATION ---
+        
+        /**
+         * Calls the Gemini API to summarize the provided text.
+         * Includes exponential backoff for retries.
+         */
+        async function callGeminiForSummary(textContent, retries = 3, delay = 1000) {
+            const apiKey = ""; // Leave empty - handled by environment
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            
+            const payload = {
+                contents: [{ parts: [{ text: `Summarize the following text in one concise paragraph:\n\n${textContent}` }] }],
+                // Optional: Add safetySettings if needed
+                // safetySettings: [ { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_MEDIUM_AND_ABOVE" } ]
+            };
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.status === 429 && retries > 0) {
+                     // Throttled - retry with exponential backoff
+                     console.warn(`Gemini API throttled. Retrying in ${delay / 1000}s... (${retries} retries left)`);
+                     await new Promise(resolve => setTimeout(resolve, delay));
+                     return callGeminiForSummary(textContent, retries - 1, delay * 2);
+                 }
+
+
+                if (!response.ok) {
+                    const errorBody = await response.json();
+                    console.error("Gemini API Error:", errorBody);
+                    throw new Error(`Gemini API request failed: ${response.status} ${response.statusText}`);
+                }
+
+                const result = await response.json();
+                
+                // Navigate the response structure to get the text
+                 const candidate = result.candidates?.[0];
+                 const summaryText = candidate?.content?.parts?.[0]?.text;
+
+                 if (!summaryText) {
+                     console.error("Unexpected Gemini API response structure:", result);
+                     throw new Error("Could not extract summary from Gemini response.");
+                 }
+
+                return summaryText.trim();
+
+            } catch (error) {
+                 if (retries > 0 && (error.message.includes('Failed to fetch') || error.message.includes('network error'))) {
+                    // Network error - retry with exponential backoff
+                     console.warn(`Network error calling Gemini API. Retrying in ${delay / 1000}s... (${retries} retries left)`);
+                     await new Promise(resolve => setTimeout(resolve, delay));
+                     return callGeminiForSummary(textContent, retries - 1, delay * 2);
+                 } else {
+                     console.error("Error calling Gemini API:", error);
+                     return "Error: Could not generate summary."; // Return error message for UI
+                 }
+            }
+        }
+
+
+        /**
+         * Handles the click event for the Summarize button.
+         */
+        async function handleSummarizeClick(file) {
+            const summaryArea = document.getElementById('summaryArea');
+            const summarizeBtn = document.getElementById('summarizeBtn');
+            if (!summaryArea || !summarizeBtn) return;
+
+            // Optional: Check credits before proceeding
+            // const canProceed = await useCredits(SUMMARIZE_COST);
+            // if (!canProceed) return;
+
+            summarizeBtn.disabled = true;
+            summaryArea.innerHTML = `<p class="text-sm text-slate-500 animate-pulse">✨ Generating summary...</p>`;
+
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const fileContent = e.target.result;
+                const summary = await callGeminiForSummary(fileContent);
+                 summaryArea.innerHTML = `
+                     <h3 class="text-md font-semibold mb-1 text-slate-700">✨ Summary:</h3>
+                     <p class="text-sm text-slate-600 bg-slate-50 p-3 rounded border">${summary}</p>
+                 `;
+                 // No need to re-enable button if it's a one-time action per upload
+            };
+            reader.onerror = () => {
+                 summaryArea.innerHTML = `<p class="text-sm text-red-600">Error reading file content.</p>`;
+                 summarizeBtn.disabled = false; // Re-enable on error
+            };
+            reader.readAsText(file); // Read file as text
+        }
+
 
         // --- EVENT LISTENERS ---
-        document.getElementById('loginBtn').addEventListener('click', () => { switchForm('login'); document.getElementById('authModal').classList.remove('hidden'); });
-        document.getElementById('signupBtn').addEventListener('click', () => { switchForm('signup'); document.getElementById('authModal').classList.remove('hidden'); });
-        document.getElementById('close-auth-modal-btn').addEventListener('click', () => closeModal('authModal'));
-        document.querySelectorAll('.modal-close-btn').forEach(btn => btn.addEventListener('click', (e) => e.target.closest('.modal').classList.add('hidden')));
+        document.getElementById('loginBtn')?.addEventListener('click', () => { switchForm('login'); document.getElementById('authModal').classList.remove('hidden'); });
+        document.getElementById('signupBtn')?.addEventListener('click', () => { switchForm('signup'); document.getElementById('authModal').classList.remove('hidden'); });
+        document.getElementById('close-auth-modal-btn')?.addEventListener('click', () => closeModal('authModal'));
+        document.querySelectorAll('.modal-close-btn').forEach(btn => btn.addEventListener('click', (e) => e.target.closest('.modal')?.classList.add('hidden'))); // Added null check
         
-        document.getElementById('modal-login-btn').addEventListener('click', () => {
+        document.getElementById('modal-login-btn')?.addEventListener('click', () => { // Added null check
             closeModal('accountModal');
             switchForm('login');
             document.getElementById('authModal').classList.remove('hidden');
         });
-        document.getElementById('modal-signup-btn').addEventListener('click', () => {
+        document.getElementById('modal-signup-btn')?.addEventListener('click', () => { // Added null check
             closeModal('accountModal');
             switchForm('signup');
             document.getElementById('authModal').classList.remove('hidden');
         });
 
-        document.getElementById('login-form').addEventListener('submit', handleEmailLogin);
-        document.getElementById('signup-form').addEventListener('submit', handleEmailSignup);
-        document.getElementById('forgot-form').addEventListener('submit', handlePasswordReset);
+        document.getElementById('login-form')?.addEventListener('submit', handleEmailLogin); // Added null check
+        document.getElementById('signup-form')?.addEventListener('submit', handleEmailSignup); // Added null check
+        document.getElementById('forgot-form')?.addEventListener('submit', handlePasswordReset); // Added null check
 
-        document.getElementById('google-auth-btn').addEventListener('click', handleGoogleSignIn);
+        document.getElementById('google-auth-btn')?.addEventListener('click', handleGoogleSignIn); // Added null check
         
-        document.querySelector('.show-signup-link').addEventListener('click', (e) => { e.preventDefault(); switchForm('signup'); });
-        document.getElementById('forgot-password-link').addEventListener('click', (e) => { e.preventDefault(); switchForm('forgot'); });
+        document.querySelector('.show-signup-link')?.addEventListener('click', (e) => { e.preventDefault(); switchForm('signup'); }); // Added null check
+        document.getElementById('forgot-password-link')?.addEventListener('click', (e) => { e.preventDefault(); switchForm('forgot'); }); // Added null check
         document.querySelectorAll('.show-login-link').forEach(link => {
             link.addEventListener('click', (e) => { e.preventDefault(); switchForm('login'); });
         });
         
         profileContainer.addEventListener('click', () => {
             const modalAuthLinks = document.getElementById('modal-auth-links');
-            if (!currentUser) {
-                document.getElementById('account-name').textContent = 'Guest';
-                document.getElementById('account-email').textContent = 'Please log in';
-                document.getElementById('account-credits').textContent = currentGuestCredits;
-                document.getElementById('account-profile-img').src = `https://ui-avatars.com/api/?name=Guest&background=random&color=fff`;
-                document.getElementById('profileImageForm').style.display = 'none';
-                document.getElementById('logoutBtn').style.display = 'none';
-                modalAuthLinks.classList.remove('hidden');
-                modalAuthLinks.classList.add('flex');
+             const accountNameEl = document.getElementById('account-name');
+             const accountEmailEl = document.getElementById('account-email');
+             const accountCreditsEl = document.getElementById('account-credits');
+             const accountProfileImgEl = document.getElementById('account-profile-img');
+             const profileImageFormEl = document.getElementById('profileImageForm');
+             const logoutBtnEl = document.getElementById('logoutBtn');
+
+
+             if (!currentUser) {
+                 if (accountNameEl) accountNameEl.textContent = 'Guest';
+                 if (accountEmailEl) accountEmailEl.textContent = 'Please log in';
+                 if (accountCreditsEl) accountCreditsEl.textContent = currentGuestCredits;
+                 if (accountProfileImgEl) accountProfileImgEl.src = `https://ui-avatars.com/api/?name=Guest&background=random&color=fff`;
+                 if (profileImageFormEl) profileImageFormEl.style.display = 'none';
+                 if (logoutBtnEl) logoutBtnEl.style.display = 'none';
+                 if (modalAuthLinks) {
+                    modalAuthLinks.classList.remove('hidden');
+                    modalAuthLinks.classList.add('flex');
+                 }
             } else {
-                document.getElementById('account-name').textContent = currentUser.displayName || 'N/A';
-                document.getElementById('account-email').textContent = currentUser.email;
-                const profilePic = document.getElementById('account-profile-img');
-                const placeholderUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.displayName || currentUser.email)}&background=random&color=fff`;
-                profilePic.src = currentUser.photoURL || placeholderUrl;
-                
+                 if (accountNameEl) accountNameEl.textContent = currentUser.displayName || 'N/A';
+                 if (accountEmailEl) accountEmailEl.textContent = currentUser.email;
+                 const profilePic = accountProfileImgEl;
+                 if (profilePic) {
+                    const placeholderUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.displayName || currentUser.email)}&background=random&color=fff`;
+                    profilePic.src = currentUser.photoURL || placeholderUrl;
+                 }
+                 
                 const isProviderUser = currentUser.providerData.some(provider => provider.providerId !== 'password');
-                document.getElementById('profileImageForm').style.display = isProviderUser ? 'none' : 'block';
-                document.getElementById('logoutBtn').style.display = 'block';
-                modalAuthLinks.classList.add('hidden');
-                modalAuthLinks.classList.remove('flex');
+                 if (profileImageFormEl) profileImageFormEl.style.display = isProviderUser ? 'none' : 'block';
+                 if (logoutBtnEl) logoutBtnEl.style.display = 'block';
+                 if (modalAuthLinks) {
+                    modalAuthLinks.classList.add('hidden');
+                    modalAuthLinks.classList.remove('flex');
+                 }
             }
-            document.getElementById('accountModal').classList.remove('hidden');
+             const accountModal = document.getElementById('accountModal');
+             if (accountModal) accountModal.classList.remove('hidden');
         });
         
-        document.getElementById('accountModal').addEventListener('click', (e) => {
+        document.getElementById('accountModal')?.addEventListener('click', (e) => { // Added null check
             const link = e.target.closest('.modal-nav-link');
             if (!link) return;
 
             e.preventDefault();
             const pageTitle = link.dataset.title;
-            
-            if (pageTitle) {
-                document.getElementById('content-page-title').textContent = pageTitle;
+            const targetUrl = link.getAttribute('href'); // Get href for external links
+
+            if (targetUrl && !targetUrl.startsWith('#')) {
+                 window.open(targetUrl, '_blank'); // Open external links in new tab
+            } else if (pageTitle) {
+                const titleEl = document.getElementById('content-page-title');
+                 if (titleEl) titleEl.textContent = pageTitle;
                 showMainSection('content-page');
             }
             
             closeModal('accountModal');
         });
 
-        document.getElementById('logoutBtn').addEventListener('click', () => {
+        document.getElementById('logoutBtn')?.addEventListener('click', () => { // Added null check
             sessionStorage.removeItem('guestCredits');
             signOut(auth);
             closeModal('accountModal');
         });
 
-        document.getElementById('changeProfileImgBtn').addEventListener('click', (e) => {
+        document.getElementById('changeProfileImgBtn')?.addEventListener('click', (e) => { // Added null check
             e.preventDefault();
-            document.getElementById('profileImageInput').click();
+            document.getElementById('profileImageInput')?.click(); // Added null check
         });
 
-        document.getElementById('profileImageInput').addEventListener('change', async (e) => {
+        document.getElementById('profileImageInput')?.addEventListener('change', async (e) => { // Added null check
             const file = e.target.files[0];
             if (!file || !currentUser) return;
             showToast('Uploading image...');
@@ -793,8 +1052,9 @@
                 await uploadBytes(storageRef, file);
                 const photoURL = await getDownloadURL(storageRef);
                 await updateProfile(currentUser, { photoURL });
-                document.getElementById('account-profile-img').src = photoURL;
-                profileImg.src = photoURL;
+                 const accProfileImg = document.getElementById('account-profile-img');
+                 if (accProfileImg) accProfileImg.src = photoURL;
+                 if (profileImg) profileImg.src = photoURL; // Update nav profile pic too
                 showToast('Profile picture updated!');
             } catch (error) {
                 showToast('Failed to upload image.', true);
@@ -805,13 +1065,19 @@
         async function useCredits(cost) {
             if (currentUser) {
                 const userDocRef = doc(db, 'users', currentUser.uid);
-                const docSnap = await getDoc(userDocRef);
-                if (docSnap.exists() && docSnap.data().credits >= cost) {
-                    await updateDoc(userDocRef, { credits: increment(-cost) });
-                    return true;
-                } else {
-                    showToast("Not enough credits! Please buy a pack.", true); 
-                    showMainSection('pricing'); 
+                try { // Add try-catch for Firestore operations
+                    const docSnap = await getDoc(userDocRef);
+                    if (docSnap.exists() && docSnap.data().credits >= cost) {
+                        await updateDoc(userDocRef, { credits: increment(-cost) });
+                        return true;
+                    } else {
+                        showToast("Not enough credits! Please buy a pack.", true); 
+                        showMainSection('pricing'); 
+                        return false;
+                    }
+                } catch (error) {
+                    console.error("Firestore error in useCredits:", error);
+                    showToast("Error checking/updating credits.", true);
                     return false;
                 }
             } else {
@@ -821,54 +1087,64 @@
                     return true;
                 } else {
                     showToast("Not enough credits! Please log in for more.", true);
-                    document.getElementById('authModal').classList.remove('hidden');
+                    const authModal = document.getElementById('authModal');
+                    if (authModal) authModal.classList.remove('hidden');
                     switchForm('login');
                     return false;
                 }
             }
         }
         
-        document.getElementById('modal-confirm-btn').addEventListener('click', async () => {
+        document.getElementById('modal-confirm-btn')?.addEventListener('click', async () => { // Added null check
              const success = await useCredits(DOWNLOAD_COST);
              if (success) {
-                  showToast(`${DOWNLOAD_COST} credit used. Starting download...`);
-                  if (typeof downloadAction === 'function') {
-                       downloadAction();
-                  }
+                 showToast(`${DOWNLOAD_COST} credit used. Starting download...`);
+                 if (typeof downloadAction === 'function') {
+                      downloadAction();
+                 }
              }
              closeModal('download-modal');
         });
-        document.getElementById('modal-cancel-btn').addEventListener('click', () => closeModal('download-modal'));
+        document.getElementById('modal-cancel-btn')?.addEventListener('click', () => closeModal('download-modal')); // Added null check
 
         function promptForDownload(fileName, blob) {
             downloadAction = () => {
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = fileName;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
+                try { // Add error handling for blob URL creation
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = fileName;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(link.href); // Clean up blob URL
+                } catch (error) {
+                    console.error("Error creating download link:", error);
+                    showToast("Could not initiate download.", true);
+                }
             };
-            document.getElementById('download-modal').classList.remove('hidden');
+            const downloadModal = document.getElementById('download-modal');
+            if (downloadModal) downloadModal.classList.remove('hidden');
         }
 
         document.querySelectorAll('.buy-btn').forEach(btn => {
             btn.addEventListener('click', async (e) => {
                 if (!currentUser) {
                     showToast("Please log in to buy credits.", true);
-                    document.getElementById('authModal').classList.remove('hidden');
+                    const authModal = document.getElementById('authModal');
+                    if (authModal) authModal.classList.remove('hidden');
                     switchForm('login');
                     return;
                 }
                 
-                const creditsToSet = parseInt(e.currentTarget.dataset.credits, 10);
+                const creditsToAdd = parseInt(e.currentTarget.dataset.credits, 10); // Changed to increment
                 const userDocRef = doc(db, 'users', currentUser.uid);
                 
                 try {
-                    await updateDoc(userDocRef, { credits: creditsToSet });
-                    showToast(`Purchase successful! You now have ${creditsToSet} credits.`);
+                     // Simulate purchase by incrementing credits
+                     await updateDoc(userDocRef, { credits: increment(creditsToAdd) }); 
+                    showToast(`Purchase successful! ${creditsToAdd} credits added.`);
                 } catch (error) {
-                    showToast("An error occurred. Please try again.", true);
+                    showToast("An error occurred during purchase simulation.", true);
                     console.error("Credit purchase simulation error: ", error);
                 }
             });
@@ -883,8 +1159,25 @@
         let processedFileCount = 0;
 
         function handleFiles(files) {
-            currentFiles.push(...Array.from(files));
-            compressionResults = new Array(currentFiles.length).fill(null);
+             // Basic validation
+             const validFiles = Array.from(files).filter(file => file.size > 0);
+             if (validFiles.length !== files.length) {
+                 showToast("Some files were empty and have been ignored.", true);
+             }
+             if (validFiles.length === 0) {
+                 showToast("No valid files selected.", true);
+                 return;
+             }
+
+             // Only add new, valid files
+             const newFiles = validFiles.filter(vf => !currentFiles.some(cf => cf.name === vf.name && cf.size === vf.size && cf.lastModified === vf.lastModified));
+             if (newFiles.length === 0 && currentFiles.length > 0) {
+                 showToast("Selected files are already added.", true);
+                 return; // Avoid adding duplicates if files already exist
+             }
+
+            currentFiles.push(...newFiles);
+            compressionResults = new Array(currentFiles.length).fill(null); // Resize results array
             renderProcessingUI();
         }
 
@@ -893,6 +1186,7 @@
                 resetUI();
                 return;
             }
+             if (!uploadSelection || !processingArea) return; // Add null checks
             uploadSelection.classList.add('hidden');
             processingArea.classList.remove('hidden');
             if (currentFiles.length === 1) {
@@ -903,72 +1197,75 @@
         }
 
         function showSingleFileUI(file) {
+            if (!processingArea) return; // Add null check
+
             let previewHTML = '';
-            if (file.type.startsWith('image/')) {
-                previewHTML = `<img src="${URL.createObjectURL(file)}" alt="File preview" class="max-h-48 w-auto object-contain rounded-md mx-auto">`;
-            } else {
-                previewHTML = `<div class="text-8xl text-center py-10">📄</div>`;
+            // Generate preview URL safely
+            try {
+                 if (file.type.startsWith('image/')) {
+                     const objectURL = URL.createObjectURL(file);
+                     previewHTML = `<img src="${objectURL}" alt="File preview" class="max-h-48 w-auto object-contain rounded-md mx-auto" onload="URL.revokeObjectURL(this.src)">`; // Revoke URL after load
+                 } else {
+                     previewHTML = `<div class="text-8xl text-center py-10">📄</div>`; // Generic icon
+                 }
+            } catch (error) {
+                console.error("Error creating object URL for preview:", error);
+                previewHTML = `<div class="text-slate-500 text-sm">Preview unavailable</div>`;
             }
             
-            const isJPEG = file.type === 'image/jpeg';
+            const isTextFile = file.type === 'text/plain';
+            const summarizeSectionHTML = isTextFile ? `
+                <div class="mt-6 pt-6 border-t">
+                     <button id="summarizeBtn" class="w-full flex items-center justify-center text-center p-3 bg-purple-600 text-white rounded-lg shadow-sm hover:bg-purple-700 font-semibold text-sm">
+                         ✨ Summarize Content
+                     </button>
+                     <div id="summaryArea" class="mt-4"></div>
+                 </div>
+            ` : '';
             
             processingArea.innerHTML = `
                 <div class="grid md:grid-cols-2 gap-8">
                     <div class="space-y-4 text-center md:text-left">
                         <h2 class="text-xl font-bold text-slate-800">Your File</h2>
-                        <div class="bg-slate-50 p-4 rounded-lg border">${previewHTML}</div>
+                        <div class="bg-slate-50 p-4 rounded-lg border min-h-[100px] flex items-center justify-center">${previewHTML}</div>
                         <div class="text-sm">
-                            <p class="font-semibold truncate">${file.name}</p>
+                            <p class="font-semibold truncate" title="${file.name}">${file.name}</p>
                             <p class="text-slate-500">${formatBytes(file.size)}</p>
                         </div>
                         <button id="resetBtn" class="w-full md:w-auto bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 font-semibold py-2 px-4 rounded-lg text-sm">Start Over</button>
                     </div>
                     <div class="space-y-6">
                         <div>
-                            <h2 class="text-xl font-bold text-slate-800">Compression Level</h2>
-                            <div id="compressionLevels" class="space-y-3 mt-3">
-                                <label class="block p-3 rounded-lg border-2 border-slate-200 cursor-pointer has-[:checked]:border-indigo-600 has-[:checked]:ring-1 has-[:checked]:ring-indigo-500 smooth-transition">
-                                    <input type="radio" name="compression-level" value="extreme" class="hidden">
-                                    <span class="font-semibold text-sm block">Extreme Compression</span>
-                                    <span class="text-xs text-slate-500">Less quality, high compression.</span>
-                                </label>
-                                <label class="block p-3 rounded-lg border-2 border-slate-200 cursor-pointer has-[:checked]:border-indigo-600 has-[:checked]:ring-1 has-[:checked]:ring-indigo-500 smooth-transition">
-                                    <input type="radio" name="compression-level" value="recommended" class="hidden" checked>
-                                    <span class="font-semibold text-sm block">Recommended Compression</span>
-                                    <span class="text-xs text-slate-500">Good quality, good compression.</span>
-                                </label>
-                                <label class="block p-3 rounded-lg border-2 border-slate-200 cursor-pointer has-[:checked]:border-indigo-600 has-[:checked]:ring-1 has-[:checked]:ring-indigo-500 smooth-transition">
-                                    <input type="radio" name="compression-level" value="less" class="hidden">
-                                    <span class="font-semibold text-sm block">Less Compression</span>
-                                    <span class="text-xs text-slate-500">High quality, less compression.</span>
-                                </label>
-                            </div>
+                            <h2 class="text-xl font-bold text-slate-800">Compression Options</h2>
+                            <!-- Compression levels might be less relevant for simple Gzip -->
+                             <p class="text-sm text-slate-500 mt-2">Files will be compressed using Gzip.</p>
+                             <!-- Removed compression level selection for simplicity with Gzip -->
                         </div>
-                        <div id="targetSizeSection" class="${isJPEG ? '' : 'hidden'}">
-                            <div class="relative"><div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-300"></div></div><div class="relative flex justify-center text-sm"><span class="px-2 bg-white text-slate-500">OR</span></div></div>
-                            <div class="mt-4">
-                                <label for="manualSizeInput" class="block text-sm font-medium text-slate-600">Manually Enter Size (KB)</label>
-                                <input type="number" id="manualSizeInput" placeholder="e.g., 150" class="mt-1 block w-full rounded-md border-slate-300 shadow-sm">
-                            </div>
-                        </div>
+                         <!-- Manual size input removed as it's complex for Gzip -->
                         <div>
                              <button id="compressBtn" class="w-full mt-4 flex items-center justify-center text-center p-4 bg-indigo-600 text-white rounded-lg shadow-sm hover:bg-indigo-700 font-semibold text-lg">Compress File</button>
                         </div>
+                         ${summarizeSectionHTML} 
                     </div>
                 </div>
                 <div id="resultArea" class="mt-8"></div>
             `;
-            addProcessingEventListeners();
+            addProcessingEventListeners(); // Re-attach listeners after modifying innerHTML
+             if (isTextFile) {
+                 document.getElementById('summarizeBtn')?.addEventListener('click', () => handleSummarizeClick(file));
+             }
         }
 
+
         function showBatchUI() {
+             if (!processingArea) return; // Add null check
             const fileListHTML = currentFiles.map((file, index) => `
-                <div id="file-row-${index}" class="p-2 grid grid-cols-4 gap-2 items-center text-sm border-b">
-                    <div class="flex items-center gap-2 col-span-2">
-                        <div class="w-10 h-10 flex items-center justify-center bg-slate-200 rounded-md text-xl">📄</div>
-                        <div><p class="font-semibold truncate">${file.name}</p><p class="text-slate-500 text-xs">${formatBytes(file.size)}</p></div>
+                <div id="file-row-${index}" class="p-2 grid grid-cols-5 gap-2 items-center text-sm border-b last:border-b-0">
+                    <div class="flex items-center gap-2 col-span-3">
+                        <div class="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-slate-200 rounded-md text-xl">📄</div>
+                        <div class="min-w-0 flex-1"><p class="font-semibold truncate" title="${file.name}">${file.name}</p><p class="text-slate-500 text-xs">${formatBytes(file.size)}</p></div>
                     </div>
-                    <div id="file-result-${index}" class="col-span-2 text-right"><span class="text-slate-400">Pending...</span></div>
+                    <div id="file-result-${index}" class="col-span-2 text-right"><span class="text-slate-400 text-xs">Pending...</span></div>
                 </div>`).join('');
 
             processingArea.innerHTML = `
@@ -985,145 +1282,338 @@
                         <div id="zipDownloadArea" class="mt-4 text-center"></div>
                     </div>
                     <div class="space-y-6">
-                        <h2 class="text-xl font-bold text-slate-800">Compression Level</h2>
-                        <div class="space-y-3">
-                            <label class="block p-3 rounded-lg border-2 border-slate-200 cursor-pointer has-[:checked]:border-indigo-600"><input type="radio" name="compression-level" value="recommended" class="hidden" checked><span class="font-semibold text-sm block">Recommended</span><span class="text-xs text-slate-500">Good quality</span></label>
-                        </div>
-                        <div><button id="compressBtn" class="w-full mt-4 p-4 bg-indigo-600 text-white rounded-lg shadow-sm hover:bg-indigo-700 font-semibold text-lg">Compress All</button></div>
+                        <h2 class="text-xl font-bold text-slate-800">Compression Options</h2>
+                         <p class="text-sm text-slate-500 mt-2">Files will be compressed using Gzip.</p>
+                         <!-- Removed compression level selection -->
+                        <div><button id="compressBtn" class="w-full mt-4 p-4 bg-indigo-600 text-white rounded-lg shadow-sm hover:bg-indigo-700 font-semibold text-lg">Compress All (${currentFiles.length}) Files</button></div>
                     </div>
                 </div>`;
-            addProcessingEventListeners();
+            addProcessingEventListeners(); // Re-attach listeners
         }
 
         function showSingleResult(originalFile, compressedBlob) {
             const resultArea = document.getElementById('resultArea');
+            if (!resultArea) return; // Add null check
             const downloadBtnId = `download-btn-${Date.now()}`;
-            const savings = 100 - (compressedBlob.size / originalFile.size * 100);
+             // Calculate savings safely, avoid division by zero
+             const savings = originalFile.size > 0 ? (100 - (compressedBlob.size / originalFile.size * 100)) : 0;
 
             resultArea.innerHTML = `<div class="bg-green-50 border-dashed border-2 border-green-200 rounded-xl p-6">
                 <h3 class="text-xl font-bold text-green-800 text-center">Compression Complete!</h3>
-                <div class="flex justify-center gap-6 my-4 text-sm">
-                    <div><div class="text-slate-500">Original</div><div class="font-bold text-lg">${formatBytes(originalFile.size)}</div></div>
-                    <div><div class="text-slate-500">Compressed</div><div class="font-bold text-lg text-green-700">${formatBytes(compressedBlob.size)}</div></div>
-                    <div><div class="text-slate-500">Savings</div><div class="font-bold text-lg text-green-700">${savings.toFixed(1)}%</div></div>
+                <div class="flex flex-wrap justify-center gap-4 my-4 text-sm text-center">
+                    <div><div class="text-slate-500 text-xs">Original</div><div class="font-bold text-base">${formatBytes(originalFile.size)}</div></div>
+                    <div><div class="text-slate-500 text-xs">Compressed</div><div class="font-bold text-base text-green-700">${formatBytes(compressedBlob.size)}</div></div>
+                    <div><div class="text-slate-500 text-xs">Savings</div><div class="font-bold text-base text-green-700">${savings.toFixed(1)}%</div></div>
                 </div>
-                <div class="text-center"><button id="${downloadBtnId}" class="bg-green-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-green-700">Download File (1 Credit)</button></div>
+                <div class="text-center mt-4"><button id="${downloadBtnId}" class="bg-green-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-green-700">Download File (1 Credit)</button></div>
             </div>`;
-            document.getElementById(downloadBtnId).onclick = () => promptForDownload(getCompressedFileName(originalFile.name), compressedBlob);
-            document.getElementById('compressBtn').disabled = true;
-            document.getElementById('compressBtn').textContent = 'Completed';
+             const downloadButton = document.getElementById(downloadBtnId);
+             if (downloadButton) {
+                downloadButton.onclick = () => promptForDownload(getCompressedFileName(originalFile.name), compressedBlob);
+             }
+             const compressButton = document.getElementById('compressBtn');
+             if (compressButton) {
+                compressButton.disabled = true;
+                compressButton.textContent = 'Completed';
+             }
         }
 
         function updateFileResultInList(index, originalFile, compressedBlob) {
             const resultContainer = document.getElementById(`file-result-${index}`);
-            const savings = 100 - (compressedBlob.size / originalFile.size * 100);
+             if (!resultContainer) return; // Add null check
+
+             // Calculate savings safely
+             const savings = originalFile.size > 0 ? (100 - (compressedBlob.size / originalFile.size * 100)) : 0;
             compressionResults[index] = { name: getCompressedFileName(originalFile.name), compressedBlob };
 
-            resultContainer.innerHTML = `<div class="flex items-center justify-end gap-2">
-                <div><p class="font-semibold text-green-700">${formatBytes(compressedBlob.size)}</p><p class="text-xs text-green-600">${savings.toFixed(1)}% Saved</p></div>
-                <button data-index="${index}" class="download-single-btn p-2 rounded-md hover:bg-slate-100"><svg class="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg></button>
+            resultContainer.innerHTML = `<div class="flex items-center justify-end gap-1">
+                <div class="text-right">
+                    <p class="font-semibold text-green-700 text-xs">${formatBytes(compressedBlob.size)}</p>
+                    <p class="text-xs text-green-600">${savings.toFixed(1)}% Saved</p>
+                </div>
+                <button data-index="${index}" title="Download this file" class="download-single-btn p-1 rounded-md hover:bg-slate-100 flex-shrink-0"><svg class="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg></button>
             </div>`;
             
             processedFileCount++;
+             const compressButton = document.getElementById('compressBtn');
+             const zipDownloadArea = document.getElementById('zipDownloadArea');
             if (processedFileCount === currentFiles.length) {
-                document.getElementById('compressBtn').disabled = true;
-                document.getElementById('compressBtn').textContent = 'Completed';
-                document.getElementById('zipDownloadArea').innerHTML = `<button id="downloadZipBtn" class="bg-green-600 text-white font-semibold py-3 px-8 rounded-lg hover:bg-green-700">Download All as .ZIP (1 Credit)</button>`;
-                document.getElementById('downloadZipBtn').addEventListener('click', createAndDownloadZip);
+                 if (compressButton) {
+                    compressButton.disabled = true;
+                    compressButton.textContent = 'All Files Completed';
+                 }
+                 if (zipDownloadArea) {
+                     // Add check to ensure there are results before showing download all
+                     const hasResults = compressionResults.some(r => r && r.compressedBlob);
+                     if (hasResults) {
+                         zipDownloadArea.innerHTML = `<button id="downloadZipBtn" class="bg-green-600 text-white font-semibold py-3 px-8 rounded-lg hover:bg-green-700">Download All as .ZIP (1 Credit)</button>`;
+                         document.getElementById('downloadZipBtn')?.addEventListener('click', createAndDownloadZip);
+                     } else {
+                         zipDownloadArea.innerHTML = `<p class="text-sm text-red-500">Compression failed for all files.</p>`;
+                     }
+                 }
+            } else {
+                 // Update button text during progress
+                 if (compressButton) {
+                     compressButton.innerHTML = `<span class="animate-pulse">Compressing ${processedFileCount + 1}/${currentFiles.length}...</span>`;
+                 }
             }
-            document.querySelectorAll('.download-single-btn').forEach(btn => btn.onclick = (e) => {
-                const idx = e.currentTarget.dataset.index;
-                const { name, compressedBlob } = compressionResults[idx];
-                promptForDownload(name, compressedBlob);
-            });
+
+            // Re-attach listener specifically to the new button
+             const newDownloadButton = resultContainer.querySelector('.download-single-btn');
+             if (newDownloadButton) {
+                 newDownloadButton.onclick = (e) => {
+                     const idx = e.currentTarget.dataset.index;
+                     if (compressionResults[idx]) {
+                         const { name, compressedBlob } = compressionResults[idx];
+                         promptForDownload(name, compressedBlob);
+                     }
+                 };
+             }
         }
         
         function resetUI() {
             currentFiles = [];
             compressionResults = [];
             processedFileCount = 0;
-            fileUploadInput.value = '';
-            uploadSelection.classList.remove('hidden');
-            processingArea.classList.add('hidden');
-            processingArea.innerHTML = '';
+            if (fileUploadInput) fileUploadInput.value = ''; // Check exists
+            if (uploadSelection) uploadSelection.classList.remove('hidden'); // Check exists
+            if (processingArea) { // Check exists
+                 processingArea.classList.add('hidden');
+                 processingArea.innerHTML = ''; // Clear previous content
+            }
         }
         
         function addProcessingEventListeners() {
+            // Use optional chaining for robustness
             document.getElementById('resetBtn')?.addEventListener('click', resetUI);
             document.getElementById('clearAllBtn')?.addEventListener('click', resetUI);
-            document.getElementById('addMoreBtn')?.addEventListener('click', () => fileUploadInput.click());
+            document.getElementById('addMoreBtn')?.addEventListener('click', () => fileUploadInput?.click());
             document.getElementById('compressBtn')?.addEventListener('click', processCompression);
         }
 
+
         function getCompressedFileName(originalName) {
+            // Handle names without extensions more robustly
             const dotIndex = originalName.lastIndexOf('.');
-            const name = dotIndex > -1 ? originalName.substring(0, dotIndex) : originalName;
-            return `${name}.gz`;
+            const name = dotIndex > 0 ? originalName.substring(0, dotIndex) : originalName; // Use > 0 to handle hidden files like .bashrc
+             // Basic sanitization: remove potentially problematic characters for filenames
+             const sanitizedName = name.replace(/[^a-zA-Z0-9\-_.]/g, '_');
+            return `${sanitizedName}.gz`;
         }
 
         function processCompression() {
+             if (!currentFiles || currentFiles.length === 0) {
+                 showToast("No files to compress.", true);
+                 return;
+             }
+             // Disable buttons during processing
+             const compressBtn = document.getElementById('compressBtn');
+             if(compressBtn) compressBtn.disabled = true;
+             const addMoreBtn = document.getElementById('addMoreBtn');
+             if(addMoreBtn) addMoreBtn.disabled = true;
+             const clearAllBtn = document.getElementById('clearAllBtn');
+             if(clearAllBtn) clearAllBtn.disabled = true;
+
+
              if (currentFiles.length === 1) processSingleFileCompression();
              else processBatchCompression();
         }
 
         async function processSingleFileCompression() {
             const compressBtn = document.getElementById('compressBtn');
-            compressBtn.disabled = true;
-            compressBtn.innerHTML = '<span class="animate-pulse">Compressing...</span>';
+             if (compressBtn) compressBtn.innerHTML = '<span class="animate-pulse">Compressing...</span>';
             const file = currentFiles[0];
+             if (!file) {
+                 resetUI(); // Reset if file somehow becomes invalid
+                 return;
+             }
+
             const reader = new FileReader();
             reader.onload = (e) => {
-                const compressed = pako.gzip(new Uint8Array(e.target.result));
-                const blob = new Blob([compressed]);
-                showSingleResult(file, blob);
+                 try {
+                     const fileContent = e.target.result;
+                     if (!(fileContent instanceof ArrayBuffer)) {
+                         throw new Error("File reader did not return ArrayBuffer.");
+                     }
+                     const compressed = pako.gzip(new Uint8Array(fileContent));
+                     const blob = new Blob([compressed], { type: 'application/gzip' }); // Specify mime type
+                     showSingleResult(file, blob);
+                 } catch (error) {
+                     console.error("Compression error:", error);
+                     showToast(`Error compressing ${file.name}.`, true);
+                     // Update UI to show error for this file
+                     const resultArea = document.getElementById('resultArea');
+                     if(resultArea) resultArea.innerHTML = `<p class="text-red-500 text-sm">Compression failed.</p>`;
+                     if(compressBtn) compressBtn.textContent = 'Compression Failed'; // Keep disabled but show status
+                 }
+            };
+            reader.onerror = (e) => {
+                 console.error("File reading error:", e);
+                 showToast(`Error reading ${file.name}.`, true);
+                 const resultArea = document.getElementById('resultArea');
+                 if(resultArea) resultArea.innerHTML = `<p class="text-red-500 text-sm">Error reading file.</p>`;
+                 if(compressBtn) compressBtn.textContent = 'File Read Error';
             };
             reader.readAsArrayBuffer(file);
         }
 
         async function processBatchCompression() {
             const compressBtn = document.getElementById('compressBtn');
-            compressBtn.disabled = true;
-            compressBtn.innerHTML = '<span class="animate-pulse">Compressing...</span>';
-            processedFileCount = 0;
+            if (compressBtn) compressBtn.innerHTML = '<span class="animate-pulse">Compressing 1/'+ currentFiles.length + '...</span>';
+            processedFileCount = 0; // Reset count for batch
 
-            currentFiles.forEach((file, index) => {
-                document.getElementById(`file-result-${index}`).innerHTML = `<span class="text-indigo-500 animate-pulse">...</span>`;
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const compressed = pako.gzip(new Uint8Array(e.target.result));
-                    updateFileResultInList(index, file, new Blob([compressed]));
-                };
-                reader.readAsArrayBuffer(file);
-            });
+            // Use Promise.all to handle all files concurrently but wait for all
+             const compressionPromises = currentFiles.map((file, index) => {
+                 return new Promise((resolve) => {
+                     const resultContainer = document.getElementById(`file-result-${index}`);
+                     if (resultContainer) resultContainer.innerHTML = `<span class="text-indigo-500 animate-pulse text-xs">...</span>`;
+
+                     const reader = new FileReader();
+                     reader.onload = (e) => {
+                         try {
+                             const fileContent = e.target.result;
+                             if (!(fileContent instanceof ArrayBuffer)) {
+                                 throw new Error("File reader did not return ArrayBuffer.");
+                             }
+                             const compressed = pako.gzip(new Uint8Array(fileContent));
+                             const blob = new Blob([compressed], { type: 'application/gzip' });
+                             updateFileResultInList(index, file, blob);
+                             resolve(true); // Indicate success for this file
+                         } catch (error) {
+                             console.error(`Compression error for ${file.name}:`, error);
+                             if (resultContainer) resultContainer.innerHTML = `<span class="text-red-500 text-xs">Failed</span>`;
+                             processedFileCount++; // Still increment count on failure
+                             resolve(false); // Indicate failure
+                         }
+                     };
+                     reader.onerror = (e) => {
+                         console.error(`File reading error for ${file.name}:`, e);
+                         if (resultContainer) resultContainer.innerHTML = `<span class="text-red-500 text-xs">Read Err</span>`;
+                         processedFileCount++; // Increment count on read error
+                         resolve(false); // Indicate failure
+                     };
+                     reader.readAsArrayBuffer(file);
+                 });
+             });
+
+             // Wait for all file processing attempts to complete
+             await Promise.all(compressionPromises);
+
+             // Final check after all promises are settled (needed if last file fails)
+             if (processedFileCount === currentFiles.length) {
+                  const zipDownloadArea = document.getElementById('zipDownloadArea');
+                  if (zipDownloadArea && !zipDownloadArea.hasChildNodes()) { // Check if download button wasn't added
+                      const hasResults = compressionResults.some(r => r && r.compressedBlob);
+                      if (hasResults) {
+                         zipDownloadArea.innerHTML = `<button id="downloadZipBtn" class="bg-green-600 text-white font-semibold py-3 px-8 rounded-lg hover:bg-green-700">Download All as .ZIP (1 Credit)</button>`;
+                         document.getElementById('downloadZipBtn')?.addEventListener('click', createAndDownloadZip);
+                      } else {
+                         zipDownloadArea.innerHTML = `<p class="text-sm text-red-500">Compression failed for all files.</p>`;
+                      }
+                  }
+                 if (compressBtn && compressBtn.textContent.includes('Compressing')) { // Check if still showing progress
+                     compressBtn.textContent = 'Finished (with errors)';
+                     compressBtn.disabled = true;
+                 }
+                 // Re-enable add/clear buttons after completion (even with errors)
+                 const addMoreBtn = document.getElementById('addMoreBtn');
+                 if(addMoreBtn) addMoreBtn.disabled = false;
+                 const clearAllBtn = document.getElementById('clearAllBtn');
+                 if(clearAllBtn) clearAllBtn.disabled = false;
+
+             }
         }
         
         async function createAndDownloadZip() {
+             const zipButton = document.getElementById('downloadZipBtn');
+             if(zipButton) zipButton.disabled = true; // Prevent multiple clicks
+             showToast("Creating ZIP file...");
+
             const zip = new JSZip();
+             let filesAdded = 0;
             compressionResults.forEach(result => {
                 if (result && result.compressedBlob) {
-                    zip.file(result.name, result.compressedBlob);
+                    // Basic sanitization for filenames within zip
+                    const safeName = result.name.replace(/[^a-zA-Z0-9\-_.]/g, '_');
+                    zip.file(safeName, result.compressedBlob);
+                     filesAdded++;
                 }
             });
-            const zipBlob = await zip.generateAsync({ type: "blob" });
-            promptForDownload('FileForge-Compressed.zip', zipBlob);
+
+             if (filesAdded === 0) {
+                 showToast("No compressed files to add to ZIP.", true);
+                 if(zipButton) zipButton.disabled = false;
+                 return;
+             }
+
+             try {
+                 const zipBlob = await zip.generateAsync({
+                     type: "blob",
+                     compression: "DEFLATE", // Add compression to the zip container itself
+                     compressionOptions: { level: 6 }
+                  });
+                 promptForDownload('FileForge-Compressed.zip', zipBlob);
+             } catch (error) {
+                 console.error("Error generating ZIP:", error);
+                 showToast("Failed to create ZIP file.", true);
+             } finally {
+                 if(zipButton) zipButton.disabled = false; // Re-enable button
+             }
         }
 
         const formatBytes = (bytes, decimals = 2) => {
+            if (!Number.isFinite(bytes) || bytes < 0) return 'Invalid size'; // Add validation
             if (bytes === 0) return '0 Bytes';
             const k = 1024;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']; // Add TB
+            const i = Math.min(Math.floor(Math.log(bytes) / Math.log(k)), sizes.length - 1); // Prevent index out of bounds
             return parseFloat((bytes / Math.pow(k, i)).toFixed(decimals < 0 ? 0 : decimals)) + ' ' + sizes[i];
         };
 
-        uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.classList.add('drag-area-highlight'); });
-        uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag-area-highlight'));
-        uploadArea.addEventListener('drop', (e) => { e.preventDefault(); uploadArea.classList.remove('drag-area-highlight'); handleFiles(e.dataTransfer.files); });
-        document.getElementById('deviceBtn').addEventListener('click', () => fileUploadInput.click());
-        fileUploadInput.addEventListener('change', (e) => handleFiles(e.target.files));
+        // Ensure elements exist before adding listeners
+        uploadArea?.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.classList.add('drag-area-highlight'); });
+        uploadArea?.addEventListener('dragleave', () => uploadArea.classList.remove('drag-area-highlight'));
+        uploadArea?.addEventListener('drop', (e) => { e.preventDefault(); uploadArea.classList.remove('drag-area-highlight'); handleFiles(e.dataTransfer.files); });
+        document.getElementById('deviceBtn')?.addEventListener('click', () => fileUploadInput?.click());
+        fileUploadInput?.addEventListener('change', (e) => handleFiles(e.target.files));
+        
+        document.getElementById('urlBtn')?.addEventListener('click', () => document.getElementById('comingSoonModal')?.classList.remove('hidden'));
+        document.getElementById('driveBtn')?.addEventListener('click', loadGooglePicker);
+        document.getElementById('dropboxBtn')?.addEventListener('click', launchDropboxPicker);
+        // OneDrive listener removed
+        
+        document.getElementById('clipboardBtn')?.addEventListener('click', async () => {
+            if (!navigator.clipboard || !navigator.clipboard.read) {
+                 showToast("Clipboard API not supported or permission denied.", true);
+                 return;
+            }
+            try {
+                const clipboardItems = await navigator.clipboard.read();
+                let found = false;
+                for (const item of clipboardItems) {
+                    const imageType = item.types.find(type => type.startsWith('image/'));
+                    if (imageType) {
+                        const blob = await item.getType(imageType);
+                         // Create a more descriptive filename if possible
+                         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+                        const file = new File([blob], `pasted-image-${timestamp}.png`, { type: blob.type });
+                        handleFiles([file]);
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) showToast('No image found on clipboard.', true);
+            } catch (err) {
+                console.error('Clipboard error:', err);
+                 // Check for specific error types if needed (e.g., NotAllowedError)
+                showToast('Could not read from clipboard. Permission might be needed.', true);
+            }
+        });
 
         const toolData = [
-             { name: 'Compress PDF', category: 'Compress', icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 9V4.5M9 9H4.5M9 9L3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5M15 15l5.25 5.25" /></svg>', color: 'bg-red-500' },
+             // ... (tool data remains the same) ...
+              { name: 'Compress PDF', category: 'Compress', icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 9V4.5M9 9H4.5M9 9L3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5M15 15l5.25 5.25" /></svg>', color: 'bg-red-500' },
              { name: 'PDF Converter', category: 'Convert', icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" /></svg>', color: 'bg-red-500' },
              { name: 'AI PDF Assistant', category: 'AI PDF', icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z" /></svg>', color: 'bg-blue-500', isPremium: true },
              { name: 'Chat with PDF', category: 'AI PDF', icon: '<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12c0 4.556-4.03 8.25-9 8.25a9.76 9.76 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" /></svg>', color: 'bg-blue-500', isPremium: true },
@@ -1137,36 +1627,37 @@
             document.querySelectorAll('.tool-link[data-premium="true"]').forEach(link => {
                 if (currentUser) {
                     link.classList.remove('locked');
-                    link.title = "";
+                    link.title = ""; // Clear title when unlocked
                 } else {
                     link.classList.add('locked');
-                    link.title = "Login to use";
+                    link.title = "Login required to use this premium tool"; // Add informative title
                 }
             });
         }
 
         function renderTools() {
             const container = document.getElementById('all-tools-container');
+             if (!container) return; // Add null check
             const groupedTools = toolData.reduce((acc, tool) => {
                 (acc[tool.category] = acc[tool.category] || []).push(tool);
                 return acc;
             }, {});
 
             container.innerHTML = Object.entries(groupedTools).map(([category, tools]) => `
-                <div>
+                <div class="mb-12">
                     <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-4">${category}</h3>
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         ${tools.map(tool => {
                             const isPremium = tool.isPremium || false;
-                            const lockIcon = isPremium ? `<span class="premium-lock absolute top-2 right-2 text-slate-400 p-1 bg-white/50 rounded-full"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 0 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" /></svg></span>` : '';
+                             const lockIcon = isPremium ? `<span class="premium-lock absolute top-2 right-2 text-slate-400 p-1 bg-white/70 backdrop-blur-sm rounded-full shadow"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 0 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" /></svg></span>` : '';
                             
                             return `
-                            <a href="#" class="tool-link relative flex items-center gap-4 p-4 rounded-lg hover:bg-slate-100 border bg-white" data-tool="${tool.name}" data-premium="${isPremium}">
+                            <a href="#" class="tool-link relative flex items-center gap-4 p-4 rounded-lg hover:bg-slate-100 border bg-white smooth-transition shadow-sm hover:shadow-md" data-tool="${tool.name}" data-premium="${isPremium}">
                                 ${lockIcon}
-                                <div class="flex-shrink-0 h-12 w-12 flex items-center justify-center ${tool.color} rounded-lg text-white">
+                                <div class="flex-shrink-0 h-12 w-12 flex items-center justify-center ${tool.color} rounded-lg text-white shadow-inner">
                                     ${tool.icon}
                                 </div>
-                                <span class="font-semibold text-slate-700">${tool.name}</span>
+                                <span class="font-semibold text-slate-700 text-sm">${tool.name}</span>
                             </a>
                             `
                         }).join('')}
@@ -1182,8 +1673,9 @@
                     const isPremium = target.dataset.premium === 'true';
 
                     if (isPremium && !currentUser) {
-                        showToast("Please log in to use this feature.", true);
-                        document.getElementById('authModal').classList.remove('hidden');
+                        showToast("Please log in to use premium features.", true);
+                        const authModal = document.getElementById('authModal');
+                        if (authModal) authModal.classList.remove('hidden');
                         switchForm('login');
                     } else {
                         activateTool(toolName);
@@ -1191,41 +1683,69 @@
                 });
             });
             
-            updateToolLocks();
+            updateToolLocks(); // Initial lock state update
         }
         
-        document.getElementById('homeLink').addEventListener('click', (e) => { e.preventDefault(); showMainSection('home'); });
-        document.getElementById('compressorLinkNav').addEventListener('click', (e) => { e.preventDefault(); showMainSection('compressor'); resetUI(); });
-        document.getElementById('allToolsLinkNav').addEventListener('click', (e) => { e.preventDefault(); showMainSection('all-tools'); });
-        document.getElementById('pricingLinkNav').addEventListener('click', (e) => { e.preventDefault(); showMainSection('pricing'); });
-        document.getElementById('homeGetStartedBtn').addEventListener('click', (e) => { e.preventDefault(); showMainSection('compressor'); });
+        // Initial setup calls
+        document.getElementById('homeLink')?.addEventListener('click', (e) => { e.preventDefault(); showMainSection('home'); });
+        document.getElementById('compressorLinkNav')?.addEventListener('click', (e) => { e.preventDefault(); showMainSection('compressor'); resetUI(); });
+        document.getElementById('allToolsLinkNav')?.addEventListener('click', (e) => { e.preventDefault(); showMainSection('all-tools'); });
+        document.getElementById('pricingLinkNav')?.addEventListener('click', (e) => { e.preventDefault(); showMainSection('pricing'); });
+        document.getElementById('homeGetStartedBtn')?.addEventListener('click', (e) => { e.preventDefault(); showMainSection('compressor'); });
         
-        document.querySelector('footer').addEventListener('click', (e) => {
-            const link = e.target.closest('.footer-nav-link');
-            if (!link) return;
+         const footer = document.querySelector('footer');
+         if (footer) {
+             footer.addEventListener('click', (e) => {
+                 const link = e.target.closest('.footer-nav-link');
+                 if (!link) return;
 
-            e.preventDefault();
-            const sectionId = link.getAttribute('href').substring(1);
-            const pageTitle = link.dataset.title;
+                 e.preventDefault();
+                 const sectionId = link.getAttribute('href')?.substring(1); // Use optional chaining
+                 const pageTitle = link.dataset.title;
+                 const targetUrl = link.getAttribute('href');
 
-            if (pageTitle) {
-                document.getElementById('content-page-title').textContent = pageTitle;
-                showMainSection('content-page');
-            } else {
-                const section = document.getElementById(sectionId);
-                if (section) {
-                    showMainSection(sectionId);
-                }
-            }
-        });
+                 if (targetUrl && !targetUrl.startsWith('#')) {
+                      window.open(targetUrl, '_blank'); // Open external links
+                 } else if (pageTitle) {
+                      const titleEl = document.getElementById('content-page-title');
+                      if(titleEl) titleEl.textContent = pageTitle;
+                     showMainSection('content-page');
+                 } else if (sectionId) { // Check if sectionId is valid
+                     const section = document.getElementById(sectionId);
+                     if (section) {
+                         showMainSection(sectionId);
+                     } else {
+                          console.warn(`Footer link target section not found: #${sectionId}`);
+                     }
+                 }
+             });
+         }
         
-        showMainSection('home');
-        renderTools();
+         // Initialize Google API client library for Picker - This is now handled by loadGooglePicker
+         /*
+         gapi.load('client:picker', () => {
+             console.log("Google Picker API library loaded.");
+             // No immediate initialization needed here, happens on button click
+         });
+         */
+         // GSI script loader removed as it's not used by gapi.auth.authorize
+         /*
+         const gsiScript = document.createElement('script');
+         gsiScript.src = 'https://accounts.google.com/gsi/client';
+         gsiScript.async = true;
+         gsiScript.defer = true;
+         document.head.appendChild(gsiScript);
+        */
+
+        showMainSection('home'); // Show home section initially
+        renderTools(); // Render tool list
         setupPasswordFeatures('login-form');
         setupPasswordFeatures('signup-form');
         
     </script>
 </body>
 </html>
+
+
 
 
