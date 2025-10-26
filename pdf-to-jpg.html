@@ -1,0 +1,938 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>FileForge — PDF → JPG</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- PDF.js (worker is set in JS) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.8.162/pdf.min.js"></script>
+  <!-- JSZip for packaging images -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  
+  <!-- Cloud Picker SDKs -->
+  <!-- Google API & Identity Services Client -->
+  <script src="https://apis.google.com/js/api.js"></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <!-- Dropbox SDK -->
+  <script type="text/javascript" src="https://www.dropbox.com/static/api/2/dropins.js" id="dropboxjs" data-app-key="REPLACE_WITH_YOUR_DROPBOX_APP_KEY"></script>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
+    #toast { position: fixed; left:50%; transform:translateX(-50%); bottom:24px; z-index:60; padding:10px 16px; border-radius:8px; color:#fff; opacity:0; transition:opacity .3s, bottom .3s; }
+    .drag-area-highlight { border-color: #4f46e5; background-color: #eef2ff; }
+    #preview-canvas { max-width: 100%; height: auto; border-radius: 0.5rem; border: 1px solid #e2e8f0; }
+  </style>
+</head>
+<body class="bg-slate-100 min-h-screen">
+
+  <!-- Consistent Navbar (No changes) -->
+  <nav class="bg-white/90 backdrop-blur-sm shadow-sm border-b border-slate-200 sticky top-0 z-30">
+    <!-- ... existing navbar code ... -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center space-x-4">
+          <div class="flex-shrink-0 flex items-center">
+            <svg class="h-8 w-auto text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z" /></svg>
+            <span class="ml-2 text-xl font-bold text-slate-800">FileForge</span>
+          </div>
+          <span class="text-slate-500 font-medium hidden sm:block">PDF to JPG Converter</span>
+        </div>
+        <div class="flex items-center space-x-4">
+          <div id="credit-badge" class="hidden items-center bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-full text-sm font-semibold">
+            <svg class="h-5 w-5 mr-1.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a.75.75 0 01.75.75v.5a.75.75 0 01-1.5 0v-.5A.75.75 0 0110 2zM10 18a.75.75 0 01.75-.75v-.5a.75.75 0 01-1.5 0v.5A.75.75 0 0110 18zM5.106 14.142a.75.75 0 010-1.06l.353-.353a.75.75 0 111.06 1.06l-.353.353a.75.75 0 01-1.06 0zM14.142 5.106a.75.75 0 011.06 0l.353.353a.75.75 0 01-1.06 1.06l-.353-.353a.75.75 0 010-1.06zM18 10a.75.75 0 01-.75.75h-.5a.75.75 0 010-1.5h.5A.75.75 0 0118 10zM2 10a.75.75 0 01.75-.75h.5a.75.75 0 010 1.5h-.5A.75.75 0 012 10zM14.142 14.142a.75.75 0 011.06 0l.353.353a.75.75 0 11-1.06 1.06l-.353-.353a.75.75 0 010-1.06zM5.106 5.106a.75.75 0 010 1.06l-.353.353a.75.75 0 11-1.06-1.06l.353-.353a.75.75 0 011.06 0z" /><path d="M10 5a5 5 0 100 10 5 5 0 000-10zM10 7a3 3 0 100 6 3 3 0 000-6z" /></svg>
+            Credits: <span id="credit-count" class="ml-1.5 font-bold">00</span>
+          </div>
+          <button id="auth-btn" class="text-sm bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition">Sign In</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-6xl mx-auto p-4 sm:p-8">
+    
+    <!-- App Container -->
+    <div id="app-container" class="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
+      
+      <!-- STATE 1: Upload (Redesigned) -->
+      <div id="upload-state" class="p-8">
+        <h1 class="text-3xl font-bold text-center text-slate-900 mb-2">PDF to Image Converter</h1>
+        <p class="text-slate-600 text-center mb-8 max-w-2xl mx-auto">Upload a PDF to convert every page into a high-quality JPG or PNG. Each page converted costs <strong id="cost-per-page-label" class="text-indigo-600">1 credit</strong>.</p>
+
+        <!-- Redesigned Upload Area -->
+        <div class="grid md:grid-cols-2 gap-8 items-center max-w-4xl mx-auto">
+            <!-- Drag and Drop Area -->
+            <div id="dropArea" class="relative block w-full h-full min-h-[300px] rounded-lg border-2 border-dashed border-slate-300 p-12 text-center hover:border-indigo-500 transition-colors drag-area-highlight flex flex-col justify-center items-center">
+              <input id="fileInput" type="file" accept="application/pdf" class="hidden" />
+              <svg class="mx-auto h-12 w-12 text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m.75 12 3 3m0 0 3-3m-3 3v-6m-1.5-9H5.625a3.375 3.375 0 0 0-3.375 3.375v11.25a3.375 3.375 0 0 0 3.375 3.375h12.75a3.375 3.375 0 0 0 3.375-3.375V11.25a3.375 3.375 0 0 0-3.375-3.375h-1.5m-3 0h3.375" />
+              </svg>
+              <span class="mt-4 block text-lg font-semibold text-slate-800">Drag & Drop PDF Here</span>
+              <span class="mt-1 block text-sm text-slate-500">or use an upload option</span>
+            </div>
+            
+            <!-- Upload Options -->
+            <div class="space-y-4">
+                <button id="chooseBtn" class="w-full flex items-center justify-center text-center p-5 bg-indigo-600 text-white rounded-lg shadow-sm hover:bg-indigo-700 transition-all font-semibold text-lg">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3" viewBox="0 0 24 24" fill="currentColor"><path d="M4 22C4 17.5817 7.58172 14 12 14C16.4183 14 20 17.5817 20 22H4ZM12 13C8.68629 13 6 10.3137 6 7C6 3.68629 8.68629 1 12 1C15.3137 1 18 3.68629 18 7C18 10.3137 15.3137 13 12 13Z"></path></svg>
+                  Choose PDF from Device
+                </button>
+                
+                <div class="relative">
+                  <div class="absolute inset-0 flex items-center" aria-hidden="true"><div class="w-full border-t border-slate-300"></div></div>
+                  <div class="relative flex justify-center"><span class="bg-white px-3 text-sm text-slate-500">or from cloud</span></div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <button id="driveBtn" class="cloud-btn w-full flex items-center justify-center p-4 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors text-sm font-medium">
+                        <svg class="w-5 h-5 mr-2" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><path d="M38.5,12.5l-13.9,24l-14,-24h27.9Z" fill="#ffc107"/><path d="M24.6,36.5l14.2,-24.1l-28.2,0l14,24.1Z" fill="#ffeb3b"/><path d="M10.5,12.5l14,24l14,-24l-28,0Z" fill="#4caf50"/></svg>
+                        Google Drive
+                    </button>
+                    <button id="dropboxBtn" class="cloud-btn w-full flex items-center justify-center p-4 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors text-sm font-medium">
+                        <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="#0061FE" xmlns="http://www.w3.org/2000/svg"><path d="M6.331 4.282l5.666-3.856 5.668 3.856-5.668 3.857L6.33 4.282zm11.334 5.23L12 13.368l-5.665-3.856L.668 13.368l5.663 3.856 5.668-3.856 5.667 3.856 5.667-3.856-5.667-3.856zM12 15.29l5.667 3.856v-5.23L12 10.06l-5.665 3.856v5.23l5.665-3.856z"/></svg>
+                        Dropbox
+                    </button>
+                </div>
+            </div>
+        </div>
+      </div>
+
+      <!-- STATE 2, 3, 4: Edit, Converting, Done (No changes) -->
+      <div id="edit-state" class="hidden">
+        <!-- ... existing edit state code ... -->
+        <div class="grid md:grid-cols-12 gap-0">
+          
+          <!-- Left Column: Preview -->
+          <div class="md:col-span-7 lg:col-span-8 bg-slate-50 p-6 md:p-8 border-r border-slate-200">
+            <h2 class="text-xl font-semibold text-slate-900 mb-4">Preview (First Page)</h2>
+            <div id="preview-wrapper" class="relative rounded-lg shadow-inner bg-white">
+              <canvas id="preview-canvas"></canvas>
+              
+              <!-- Progress Overlay -->
+              <div id="progress-overlay" class="hidden absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center p-8 text-center transition-opacity">
+                 <h3 id="progress-text" class="text-lg font-semibold text-indigo-700 mb-4"></h3>
+                 <div class="w-full max-w-sm bg-slate-200 rounded-full h-3 overflow-hidden">
+                   <div id="progress-bar" class="h-3 bg-indigo-600 rounded-full transition-all duration-300" style="width: 0%"></div>
+                 </div>
+                 <button id="cancelProgressBtn" class="hidden mt-6 px-4 py-1.5 bg-white text-slate-700 rounded-full font-semibold text-sm border border-slate-300 hover:bg-slate-100 transition">
+                    Cancel
+                 </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Right Column: Controls -->
+          <div class="md:col-span-5 lg:col-span-4 p-6 md:p-8">
+            
+            <!-- Options State -->
+            <div id="options-state">
+              <h2 class="text-xl font-semibold text-slate-900 mb-6">Conversion Options</h2>
+              <div class="space-y-6">
+                <div>
+                  <label for="format-select" class="block text-sm font-medium text-slate-700 mb-1">Format</label>
+                  <select id="format-select" class="w-full p-3 border border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                    <option value="image/jpeg">JPG (Best for photos)</option>
+                    <option value="image/png">PNG (Best for text/diagrams)</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="quality-select" class="block text-sm font-medium text-slate-700 mb-1">Quality</label>
+                  <select id="quality-select" class="w-full p-3 border border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                    <option value="1.0">Low (Fast, Small Size)</option>
+                    <option value="2.0" selected>Medium (Good Balance)</option>
+                    <option value="3.0">High (Best Quality, Slower)</option>
+                  </select>
+                </div>
+                
+                <!-- NEW: Page Range Input -->
+                <div>
+                  <label for="page-range" class="block text-sm font-medium text-slate-700 mb-1">Page Range (Optional)</label>
+                  <input type="text" id="page-range" class="w-full p-3 border border-slate-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500" placeholder="e.g., 1-5, 8, 11-13">
+                  <p id="page-range-error" class="text-red-600 text-xs mt-1"></p>
+                </div>
+                
+                <div class="bg-indigo-50 border border-indigo-200 text-indigo-800 p-4 rounded-lg text-center">
+                  <div id="cost-summary" class="font-semibold text-lg">...</div>
+                  <div class="text-sm">Total Cost</div>
+                </div>
+                
+                <button id="convertBtn" class="w-full p-4 bg-indigo-600 text-white rounded-lg font-semibold text-lg shadow-sm hover:bg-indigo-700 transition">
+                  Start Conversion
+                </button>
+                <button id="cancelBtn" class="hidden w-full mt-3 p-3 bg-white text-slate-700 rounded-lg font-semibold text-sm border border-slate-300 hover:bg-slate-50 transition">
+                  Cancel
+                </button>
+              </div>
+            </div>
+            
+            <!-- Done State -->
+            <div id="done-state" class="hidden text-center">
+              <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto">
+                <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+              </div>
+              <h2 class="text-2xl font-bold text-slate-900 mt-6 mb-2">Conversion Complete!</h2>
+              <p id="result-summary" class="text-slate-600 mb-8"></p>
+              
+              <a id="downloadLink" class="w-full block p-4 bg-green-600 text-white rounded-lg font-semibold text-lg shadow-sm hover:bg-green-700 transition">
+                Download .ZIP File
+              </a>
+              <button id="resetBtn" class="mt-4 w-full p-3 bg-white text-slate-700 rounded-lg font-semibold text-sm border border-slate-300 hover:bg-slate-50 transition">
+                Convert Another PDF
+              </button>
+            </div>
+            
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div id="toast"></div>
+
+  <!-- Insufficient credits modal (No changes) -->
+  <div id="modal" class="hidden fixed inset-0 bg-black/50 z-40 flex items-center justify-center p-4">
+    <!-- ... existing modal code ... -->
+    <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md text-center">
+      <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg>
+      </div>
+      <h3 class="text-lg font-semibold text-slate-900 mb-2">Not Enough Credits</h3>
+      <p class="text-sm text-slate-600 mb-6">You don't have enough credits to convert this PDF. Please or upload a smaller file.</p>
+      <div class="flex justify-center gap-3">
+        <button id="closeModal" class="px-5 py-2.5 rounded-lg bg-slate-200 text-slate-800 font-semibold text-sm hover:bg-slate-300">Got it</button>
+      </div>
+    </div>
+  </div>
+
+<script type="module">
+/* ========== CONFIG ========== */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  // TODO: Replace these with your Firebase project's config
+  apiKey: "REPLACE_API_KEY",
+  authDomain: "REPLACE_AUTH_DOMAIN",
+  projectId: "REPLACE_PROJECT_ID",
+  storageBucket: "REPLACE_STORAGE_BUCKET",
+  messagingSenderId: "REPLACE_MESSAGING_ID",
+  appId: "REPLACE_APP_ID"
+};
+
+/* ========== GOOGLE API CONFIG ========== */
+// TODO: Replace with your Google Cloud credentials
+const GOOGLE_CLIENT_ID = "REPLACE_WITH_YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com";
+const GOOGLE_API_KEY = "REPLACE_WITH_YOUR_GOOGLE_API_KEY";
+const SCOPES = 'https://www.googleapis.com/auth/drive.file';
+
+// Initialize Firebase
+let app, auth, db;
+try {
+  app = initializeApp(firebaseConfig);
+  auth = getAuth(app);
+  db = getFirestore(app);
+} catch (e) {
+  console.error("Firebase init failed. Did you replace the config values?", e);
+  showToast("App failed to load. Check console.", true);
+}
+
+/* ========== SETTINGS ========== */
+const COST_PER_PAGE = 1;
+const GUEST_START_CREDITS = 10;
+const ZIP_FILENAME_PREFIX = "FileForge_";
+
+/* ========== UI REFS ========== */
+const fileInput = document.getElementById('fileInput');
+const chooseBtn = document.getElementById('chooseBtn');
+const convertBtn = document.getElementById('convertBtn');
+const dropArea = document.getElementById('dropArea');
+const toastEl = document.getElementById('toast');
+const modal = document.getElementById('modal');
+const closeModal = document.getElementById('closeModal');
+const authBtn = document.getElementById('auth-btn');
+const creditBadge = document.getElementById('credit-badge');
+const creditCountEl = document.getElementById('credit-count');
+const costLabel = document.getElementById('cost-per-page-label');
+const driveBtn = document.getElementById('driveBtn');
+const dropboxBtn = document.getElementById('dropboxBtn');
+
+// App States
+// ... (rest of UI refs are unchanged) ...
+const uploadState = document.getElementById('upload-state');
+const editState = document.getElementById('edit-state');
+const optionsState = document.getElementById('options-state');
+const doneState = document.getElementById('done-state');
+
+// Edit State Components
+const previewCanvas = document.getElementById('preview-canvas');
+const progressOverlay = document.getElementById('progress-overlay');
+const progressBar = document.getElementById('progress-bar');
+const progressText = document.getElementById('progress-text');
+const costSummary = document.getElementById('cost-summary');
+const formatSelect = document.getElementById('format-select');
+const qualitySelect = document.getElementById('quality-select');
+const resultSummary = document.getElementById('result-summary');
+const downloadLink = document.getElementById('downloadLink');
+const resetBtn = document.getElementById('resetBtn');
+const cancelBtn = document.getElementById('cancelBtn');
+const cancelProgressBtn = document.getElementById('cancelProgressBtn');
+// NEW: Page Range Elements
+const pageRangeInput = document.getElementById('page-range');
+const pageRangeError = document.getElementById('page-range-error');
+
+
+costLabel.textContent = COST_PER_PAGE;
+
+/* ========== APP STATE ========== */
+// ... (app state vars are unchanged) ...
+let selectedFile = null;
+let pdfDoc = null; // To store the loaded pdf.js document
+let pageCount = 0;
+let currentUser = null;
+let userDocUnsubscribe = null;
+let guestCredits = null;
+let appState = 'idle'; // 'idle', 'file-loaded', 'converting', 'done'
+let currentTotalCost = 0; // NEW: To track cost
+
+
+/* ========== UI CONTROL ========== */
+// ... (showToast, setProgress, updateUIForState, resetApp functions are unchanged) ...
+function showToast(msg, err=false) {
+  toastEl.textContent = msg;
+  toastEl.style.background = err ? "#ef4444" : "#10b981"; // red-500 or green-500
+  toastEl.style.opacity = 1;
+  toastEl.style.bottom = '28px';
+  setTimeout(()=> {
+    toastEl.style.opacity = 0;
+    toastEl.style.bottom = '24px';
+  }, 3500);
+}
+
+function setProgress(pct, text) {
+  progressBar.style.width = pct + "%";
+  progressText.textContent = text || `${pct}%`;
+}
+
+function updateUIForState(newState) {
+  appState = newState;
+  
+  // Hide all major containers
+  uploadState.classList.add('hidden');
+  editState.classList.add('hidden');
+  progressOverlay.classList.add('hidden');
+  optionsState.classList.add('hidden');
+  doneState.classList.add('hidden');
+  cancelBtn.classList.add('hidden');
+  cancelProgressBtn.classList.add('hidden');
+  
+  switch(appState) {
+    case 'idle':
+      uploadState.classList.remove('hidden');
+      break;
+    case 'file-loaded':
+      editState.classList.remove('hidden');
+      optionsState.classList.remove('hidden');
+      cancelBtn.classList.remove('hidden');
+      break;
+    case 'converting':
+      editState.classList.remove('hidden');
+      optionsState.classList.remove('hidden'); // Keep options visible but disabled
+      progressOverlay.classList.remove('hidden');
+      convertBtn.disabled = true;
+      cancelBtn.classList.add('hidden'); // Hide the main cancel button
+      cancelProgressBtn.classList.remove('hidden'); // Show the progress cancel button
+      break;
+    case 'done':
+      editState.classList.remove('hidden');
+      doneState.classList.remove('hidden');
+      break;
+  }
+}
+
+function resetApp() {
+  selectedFile = null;
+  pdfDoc = null;
+  pageCount = 0;
+  fileInput.value = null; // Allows re-uploading the same file
+  if (previewCanvas.getContext('2d')) {
+    previewCanvas.getContext('2d').clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+  }
+  downloadLink.href = '#';
+  downloadLink.download = '';
+  convertBtn.disabled = false;
+  // NEW: Reset page range fields
+  pageRangeInput.value = '';
+  pageRangeInput.placeholder = 'e.g., 1-5, 8, 11-13';
+  pageRangeError.textContent = '';
+  
+  updateUIForState('idle');
+  showToast("Operation cancelled."); // Notify user
+}
+
+
+/* ========== GUEST/USER CREDIT HANDLING ========== */
+// ... (initGuestCredits, updateGuestCredits, initializeUserData, useUserCredits functions are unchanged) ...
+function initGuestCredits() {
+  const v = sessionStorage.getItem('guestCredits');
+  if (v === null) {
+    guestCredits = GUEST_START_CREDITS;
+    sessionStorage.setItem('guestCredits', guestCredits);
+  } else {
+    guestCredits = parseInt(v, 10);
+  }
+  updateCreditUI();
+}
+
+function updateGuestCredits(delta) {
+  guestCredits = Math.max(0, guestCredits + delta);
+  sessionStorage.setItem('guestCredits', guestCredits);
+  updateCreditUI();
+}
+
+async function initializeUserData(user) {
+  if (userDocUnsubscribe) userDocUnsubscribe();
+  const userRef = doc(db, 'users', user.uid);
+  
+  try {
+    const snapshot = await getDoc(userRef);
+    if (!snapshot.exists()) {
+      await setDoc(userRef, {
+        name: user.displayName || "FileForge User",
+        email: user.email || null,
+        credits: 15, // Welcome credits
+        createdAt: new Date()
+      });
+      showToast("Welcome! 15 free credits added to your account.");
+    }
+  } catch (e) {
+    console.error("Error initializing user data:", e);
+  }
+  
+  userDocUnsubscribe = onSnapshot(userRef, (snap) => {
+    if (snap.exists()) {
+      const credits = snap.data().credits ?? 0;
+      creditCountEl.textContent = String(credits).padStart(2, '0');
+    }
+  }, (error) => {
+    console.error("Firestore snapshot error:", error);
+    showToast("Could not sync credits.", true);
+  });
+  
+  creditBadge.classList.remove('hidden');
+}
+
+async function useUserCredits(uid, amountToSubtract) {
+  const userRef = doc(db, 'users', uid);
+  
+  const snap = await getDoc(userRef);
+  if (!snap.exists()) return { ok: false, reason: 'no_user' };
+  
+  const currentCredits = snap.data().credits ?? 0;
+  if (currentCredits < amountToSubtract) {
+    return { ok: false, reason: 'insufficient' };
+  }
+  
+  try {
+    await updateDoc(userRef, {
+      credits: increment(-amountToSubtract)
+    });
+    return { ok: true };
+  } catch (error) {
+    console.error("Atomic credit decrement failed:", error);
+    return { ok: false, reason: 'update_failed' };
+  }
+}
+
+
+/* ========== AUTHENTICATION ========== */
+// ... (authBtn listener, onAuthStateChanged, updateCreditUI functions are unchanged) ...
+authBtn.addEventListener('click', async () => {
+  if (!auth) {
+    showToast("Auth is not initialized. Check config.", true);
+    return;
+  }
+  if (currentUser) {
+    await signOut(auth);
+    showToast("You've been signed out.");
+  } else {
+    const provider = new GoogleAuthProvider();
+    try {
+      await signInWithPopup(auth, provider);
+      // onAuthStateChanged will handle the rest
+    } catch (e) {
+      showToast(e.message || "Sign in failed", true);
+    }
+  }
+});
+
+onAuthStateChanged(auth, async (user) => {
+  currentUser = user;
+  if (user) {
+    authBtn.textContent = "Sign Out";
+    creditBadge.classList.remove('hidden');
+    creditCountEl.textContent = "--"; // Placeholder
+    sessionStorage.removeItem('guestCredits'); // Clear guest credits
+    guestCredits = null;
+    await initializeUserData(user);
+  } else {
+    // User is signed out
+    authBtn.textContent = "Sign In";
+    if (userDocUnsubscribe) { userDocUnsubscribe(); userDocUnsubscribe = null; }
+    initGuestCredits(); // Switch to guest credit mode
+    creditBadge.classList.remove('hidden');
+    updateCreditUI();
+  }
+});
+
+function updateCreditUI() {
+  if (!currentUser && guestCredits !== null) {
+    creditCountEl.textContent = String(guestCredits).padStart(2,'0');
+  }
+}
+
+
+/* ========== FILE SELECTION (LOCAL & DRAG/DROP) ========== */
+// ... (event listeners are unchanged) ...
+chooseBtn.addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', (e) => {
+  const f = e.target.files?.[0];
+  if (f) handleSelectedFile(f);
+});
+
+['dragenter','dragover'].forEach(ev => {
+  dropArea.addEventListener(ev, (e) => {
+    e.preventDefault(); e.stopPropagation();
+    dropArea.classList.add('drag-area-highlight');
+  });
+});
+['dragleave','drop'].forEach(ev => {
+  dropArea.addEventListener(ev, (e) => {
+    e.preventDefault(); e.stopPropagation();
+    dropArea.classList.remove('drag-area-highlight');
+  });
+});
+dropArea.addEventListener('drop', (e) => {
+  const f = e.dataTransfer.files?.[0];
+  if (f) handleSelectedFile(f);
+});
+
+/* ========== CLOUD PICKER LOGIC (NEW) ========== */
+
+let pickerApiLoaded = false;
+let tokenClient;
+
+// --- Google Drive ---
+function onDriveBtnClick() {
+    if (!GOOGLE_CLIENT_ID.startsWith('REPLACE') && !GOOGLE_API_KEY.startsWith('REPLACE')) {
+        gapi.load('picker', () => {
+            pickerApiLoaded = true;
+            if (!tokenClient) {
+                tokenClient = google.accounts.oauth2.initTokenClient({
+                    client_id: GOOGLE_CLIENT_ID,
+                    scope: SCOPES,
+                    callback: (tokenResponse) => {
+                        if (tokenResponse && tokenResponse.access_token) {
+                            createPicker(tokenResponse.access_token);
+                        } else {
+                            showToast("Failed to get Google auth token.", true);
+                        }
+                    },
+                });
+            }
+            tokenClient.requestAccessToken();
+        });
+    } else {
+        showToast("Google Drive is not configured.", true);
+    }
+}
+
+function createPicker(accessToken) {
+    if (pickerApiLoaded) {
+        const view = new google.picker.View(google.picker.ViewId.DOCS);
+        view.setMimeTypes("application/pdf"); // Only allow PDFs
+        
+        const picker = new google.picker.PickerBuilder()
+            .addView(view)
+            .setOAuthToken(accessToken)
+            .setDeveloperKey(GOOGLE_API_KEY)
+            .setCallback((data) => pickerCallback(data, accessToken)) // Pass token to callback
+            .build();
+        picker.setVisible(true);
+    }
+}
+
+async function pickerCallback(data, accessToken) {
+    if (data.action === google.picker.Action.PICKED) {
+        const doc = data.docs[0];
+        const fileId = doc.id;
+        const fileName = doc.name;
+        
+        showToast(`Fetching ${fileName} from Drive...`);
+        
+        const url = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`;
+        
+        try {
+            const response = await fetch(url, {
+                headers: { 'Authorization': `Bearer ${accessToken}` }
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Google Drive fetch error: ${response.statusText}`);
+            }
+            
+            const blob = await response.blob();
+            const file = new File([blob], fileName, { type: 'application/pdf' });
+            
+            // Feed the file into the existing handler
+            handleSelectedFile(file);
+            
+        } catch (err) {
+            console.error("Google Drive fetch error:", err);
+            showToast("Failed to download file from Google Drive.", true);
+        }
+    }
+}
+
+// --- Dropbox ---
+function launchDropboxPicker() {
+    const dropboxKey = document.getElementById('dropboxjs')?.getAttribute('data-app-key');
+    if (dropboxKey && !dropboxKey.startsWith('REPLACE')) {
+        Dropbox.choose({
+            success: async (files) => {
+                const fileInfo = files[0];
+                const fileName = fileInfo.name;
+                showToast(`Fetching ${fileName} from Dropbox...`);
+                
+                try {
+                    const response = await fetch(fileInfo.link); // Fetch direct link
+                    if (!response.ok) {
+                        throw new Error(`Dropbox fetch error: ${response.statusText}`);
+                    }
+                    const blob = await response.blob();
+                    const file = new File([blob], fileName, { type: 'application/pdf' });
+                    
+                    // Feed the file into the existing handler
+                    handleSelectedFile(file);
+                    
+                } catch (err) {
+                    console.error("Dropbox fetch error:", err);
+                    showToast("Failed to download file from Dropbox.", true);
+                }
+            },
+            linkType: "direct",
+            multiselect: false,
+            extensions: ['.pdf'], // Only allow PDFs
+        });
+    } else {
+        showToast("Dropbox is not configured.", true);
+    }
+}
+
+// Add listeners for new buttons
+driveBtn.addEventListener('click', onDriveBtnClick);
+dropboxBtn.addEventListener('click', launchDropboxPicker);
+
+
+/* ========== FILE HANDLER & PREVIEW ========== */
+
+async function handleSelectedFile(file) {
+  // This function is now the central handler for *all* file inputs
+  // (local, drag/drop, drive, dropbox)
+  
+  if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+    showToast('Please select a valid PDF file', true);
+    return;
+  }
+  
+  selectedFile = file;
+  
+  try {
+    const arrBuf = await selectedFile.arrayBuffer();
+    // Use pdf.js to parse
+    const loadingTask = pdfjsLib.getDocument({ data: arrBuf });
+    pdfDoc = await loadingTask.promise;
+    pageCount = pdfDoc.numPages;
+    
+    // NEW: Reset and update page range input
+    pageRangeInput.value = '';
+    pageRangeError.textContent = '';
+    pageRangeInput.placeholder = `All pages (1-${pageCount})`;
+    
+    // Update cost summary for all pages initially
+    updateCostSummary(pageCount);
+    
+    // Render the first page preview
+    await renderPdfPreview(pdfDoc, 1, previewCanvas);
+    
+    // Show the edit state
+    updateUIForState('file-loaded');
+    
+  } catch (err) {
+    console.error(err);
+    showToast('Could not read PDF: ' + (err.message || err), true);
+    resetApp();
+  }
+}
+
+async function renderPdfPreview(pdf, pageNum, canvas) {
+  // ... (this function is unchanged) ...
+  const page = await pdf.getPage(pageNum);
+  const scale = 1.5; // Fixed scale for preview
+  const viewport = page.getViewport({ scale: scale });
+
+  const context = canvas.getContext('2d');
+  canvas.height = viewport.height;
+  canvas.width = viewport.width;
+
+  const renderContext = {
+    canvasContext: context,
+    viewport: viewport
+  };
+  await page.render(renderContext).promise;
+}
+
+
+/* ========== NEW: PAGE RANGE & COST LOGIC ========== */
+
+/**
+ * Parses a page range string (e.g., "1-5, 8, 11-13")
+ * Returns an object { pages: [Number], error: String|null }
+ */
+function parsePageRange(input, maxPages) {
+  if (input.trim() === '') {
+    // Empty means all pages
+    const allPages = Array.from({ length: maxPages }, (_, i) => i + 1);
+    return { pages: allPages, error: null };
+  }
+
+  const uniquePages = new Set();
+  const parts = input.split(',');
+  
+  for (const part of parts) {
+    const trimmedPart = part.trim();
+    if (!trimmedPart) continue;
+    
+    if (trimmedPart.includes('-')) {
+      // It's a range
+      const [startStr, endStr] = trimmedPart.split('-');
+      const start = parseInt(startStr, 10);
+      const end = parseInt(endStr, 10);
+      
+      if (isNaN(start) || isNaN(end) || start < 1 || end > maxPages || start > end) {
+        return { pages: [], error: `Invalid range: "${trimmedPart}"` };
+      }
+      
+      for (let i = start; i <= end; i++) {
+        uniquePages.add(i);
+      }
+    } else {
+      // It's a single page
+      const page = parseInt(trimmedPart, 10);
+      if (isNaN(page) || page < 1 || page > maxPages) {
+        return { pages: [], error: `Invalid page: "${trimmedPart}"` };
+      }
+      uniquePages.add(page);
+    }
+  }
+  
+  const sortedPages = Array.from(uniquePages).sort((a, b) => a - b);
+  return { pages: sortedPages, error: null };
+}
+
+/**
+ * Updates the cost summary UI based on the number of pages.
+ */
+function updateCostSummary(numPages) {
+  currentTotalCost = numPages * COST_PER_PAGE;
+  costSummary.innerHTML = `
+    <div class="font-bold text-2xl text-indigo-700">${currentTotalCost}</div>
+    <div class="text-sm text-indigo-600">${numPages} Pages × ${COST_PER_PAGE} Credit/Page</div>
+  `;
+}
+
+// NEW: Event listener for the page range input
+pageRangeInput.addEventListener('input', () => {
+  if (!pdfDoc) return; // No file loaded
+  
+  const result = parsePageRange(pageRangeInput.value, pageCount);
+  
+  if (result.error) {
+    pageRangeError.textContent = result.error;
+    convertBtn.disabled = true;
+    updateCostSummary(0); // Show 0 cost if range is invalid
+  } else {
+    pageRangeError.textContent = '';
+    convertBtn.disabled = false;
+    updateCostSummary(result.pages.length);
+  }
+});
+
+
+/* ========== CORE: CONVERSION LOGIC ========== */
+// ... (convertBtn listener, deductCreditsAfterSuccess functions are unchanged) ...
+convertBtn.addEventListener('click', async () => {
+  if (!pdfDoc || !selectedFile) return;
+
+  // 1. Get options
+  const mimeType = formatSelect.value;
+  const fileExtension = mimeType === 'image/jpeg' ? '.jpg' : '.png';
+  const scale = parseFloat(qualitySelect.value);
+  const jpegQuality = 0.92; // Fixed quality for JPEG
+  
+  // 2. Check pages and credits
+  const pageResult = parsePageRange(pageRangeInput.value, pageCount);
+  
+  if (pageResult.error) {
+    showToast(pageResult.error, true);
+    return;
+  }
+  
+  const pagesToConvert = pageResult.pages;
+  const requiredCredits = pagesToConvert.length * COST_PER_PAGE;
+  
+  if (requiredCredits <= 0) {
+      showToast("Please select at least one page to convert.", true);
+      return;
+  }
+  
+  if (currentUser) {
+    // Check Firestore credits
+    const userRef = doc(db, 'users', currentUser.uid);
+    const snap = await getDoc(userRef);
+    const currentCredits = snap.exists() ? snap.data().credits ?? 0 : 0;
+    
+    if (currentCredits < requiredCredits) {
+      openInsufficientModal();
+      return;
+    }
+  } else {
+    // Check guest credits
+    if (guestCredits < requiredCredits) {
+      openInsufficientModal();
+      return;
+    }
+  }
+  
+  // 3. Start Conversion
+  updateUIForState('converting');
+  const zip = new JSZip();
+  
+  try {
+    // Create a temporary canvas for rendering
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    
+    // UPDATED: Loop over the selected pages array
+    for (let index = 0; index < pagesToConvert.length; index++) {
+      const pageNum = pagesToConvert[index];
+      
+      // NEW: Check if cancelled during the loop
+      if (appState !== 'converting' || !pdfDoc) {
+          console.log("Conversion cancelled by user.");
+          return; // Exit the loop
+      }
+      
+      const progressPct = Math.round(((index) / pagesToConvert.length) * 100);
+      setProgress(progressPct, `Converting page ${pageNum} (${index + 1} of ${pagesToConvert.length})...`);
+      
+      const page = await pdfDoc.getPage(pageNum);
+      const viewport = page.getViewport({ scale: scale });
+      
+      canvas.width = Math.round(viewport.width);
+      canvas.height = Math.round(viewport.height);
+      
+      const renderContext = { canvasContext: ctx, viewport };
+      await page.render(renderContext).promise;
+      
+      // Get blob from canvas
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, mimeType, jpegQuality));
+      
+      // Add blob to zip
+      const fileName = `${selectedFile.name.replace(/\.pdf$/i, '')}_page_${pageNum}${fileExtension}`;
+      zip.file(fileName, blob);
+      
+      // Small delay to keep UI responsive
+      await new Promise(r => setTimeout(r, 10)); 
+    }
+    
+    // 4. Generate ZIP
+    setProgress(95, 'Packaging ZIP file...');
+    const zipBlob = await zip.generateAsync({ type: 'blob' }, (metadata) => {
+      setProgress(95 + Math.round(metadata.percent / 20), `Zipping... ${Math.round(metadata.percent)}%`);
+    });
+    
+    // 5. Deduct Credits (The *actual* deduction happens here, after success)
+    const deductionOk = await deductCreditsAfterSuccess(requiredCredits);
+    if (!deductionOk) {
+      showToast('Conversion succeeded, but a billing error occurred. Please contact support.', true);
+      console.error("CRITICAL: Failed to deduct credits after successful conversion.");
+    }
+    
+    // 6. Show Done State
+    const url = URL.createObjectURL(zipBlob);
+    downloadLink.href = url;
+    downloadLink.download = `${ZIP_FILENAME_PREFIX}${selectedFile.name.replace(/\.pdf$/i, '')}.zip`;
+    resultSummary.textContent = `Successfully converted ${pagesToConvert.length} pages. ${requiredCredits} credits were used.`;
+    updateUIForState('done');
+    showToast('Conversion complete!');
+
+  } catch (err) {
+    console.error(err);
+    showToast('Conversion failed: ' + (err.message || err), true);
+    resetApp(); // Reset on failure
+  }
+});
+
+async function deductCreditsAfterSuccess(requiredCredits) {
+  if (currentUser) {
+    // Use the *safe* atomic update
+    const res = await useUserCredits(currentUser.uid, requiredCredits);
+    return res.ok;
+  } else {
+    // Guest: subtract from session
+    updateGuestCredits(-requiredCredits);
+    return true;
+  }
+}
+
+/* ========== MODAL & RESET ========== */
+// ... (closeModal listener, resetBtn listener, openInsufficientModal functions are unchanged) ...
+closeModal.addEventListener('click', () => modal.classList.add('hidden'));
+resetBtn.addEventListener('click', resetApp);
+cancelBtn.addEventListener('click', resetApp);
+cancelProgressBtn.addEventListener('click', resetApp);
+
+function openInsufficientModal() {
+  modal.classList.remove('hidden');
+}
+
+
+/* ========== INITIALIZE ========== */
+function initialSetup() {
+  if (pdfjsLib && pdfjsLib.GlobalWorkerOptions) {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.8.162/pdf.worker.min.js';
+  } else {
+    console.error("pdf.js library not loaded correctly.");
+    showToast("Error: PDF library failed to load.", true);
+  }
+  updateUIForState('idle'); // Set initial state
+  // Auth listener (onAuthStateChanged) will trigger guest/user credit init
+}
+
+// Run setup only if Firebase initialized correctly
+if (auth) {
+  initialSetup();
+}
+
+</script>
+</body>
+</html>
+
+
+

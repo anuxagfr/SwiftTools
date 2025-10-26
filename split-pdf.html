@@ -1,0 +1,859 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>FileForge — Split PDF</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- pdf-lib for reading/writing PDFs -->
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+
+  <!-- JSZip for packaging multiple output PDFs -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+  <!-- Cloud Picker SDKs -->
+  <script src="https://apis.google.com/js/api.js"></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script type="text/javascript" src="https://www.dropbox.com/static/api/2/dropins.js" id="dropboxjs" data-app-key="REPLACE_WITH_YOUR_DROPBOX_APP_KEY"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    body { font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
+    #toast { position: fixed; left:50%; transform:translateX(-50%); bottom:24px; z-index:60; padding:10px 16px; border-radius:8px; color:#fff; opacity:0; transition:opacity .3s, bottom .3s; }
+    .drag-area-highlight { border-color: #4f46e5; background-color: #eef2ff; }
+    /* Radio button custom style */
+    input[type="radio"]:checked + label { border-color: #4f46e5; background-color: #eef2ff; color: #3730a3; }
+    input[type="radio"] + label { transition: all 0.2s ease-in-out; }
+  </style>
+</head>
+<body class="bg-slate-100 min-h-screen">
+
+  <!-- Consistent Navbar -->
+  <nav class="bg-white/90 backdrop-blur-sm shadow-sm border-b border-slate-200 sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center space-x-4">
+          <div class="flex-shrink-0 flex items-center">
+            <svg class="h-8 w-auto text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 01-2.25 2.25M16.5 7.5V18a2.25 2.25 0 002.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 002.25 2.25h13.5M6 7.5h3v3H6v-3z" /></svg>
+            <span class="ml-2 text-xl font-bold text-slate-800">FileForge</span>
+          </div>
+          <span class="text-slate-500 font-medium hidden sm:block">Split PDF File</span>
+        </div>
+        <div class="flex items-center space-x-4">
+          <div id="credit-badge" class="hidden items-center bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-full text-sm font-semibold">
+            <svg class="h-5 w-5 mr-1.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a.75.75 0 01.75.75v.5a.75.75 0 01-1.5 0v-.5A.75.75 0 0110 2zM10 18a.75.75 0 01.75-.75v-.5a.75.75 0 01-1.5 0v.5A.75.75 0 0110 18zM5.106 14.142a.75.75 0 010-1.06l.353-.353a.75.75 0 111.06 1.06l-.353.353a.75.75 0 01-1.06 0zM14.142 5.106a.75.75 0 011.06 0l.353.353a.75.75 0 01-1.06 1.06l-.353-.353a.75.75 0 010-1.06zM18 10a.75.75 0 01-.75.75h-.5a.75.75 0 010-1.5h.5A.75.75 0 0118 10zM2 10a.75.75 0 01.75-.75h.5a.75.75 0 010 1.5h-.5A.75.75 0 012 10zM14.142 14.142a.75.75 0 011.06 0l.353.353a.75.75 0 11-1.06 1.06l-.353-.353a.75.75 0 010-1.06zM5.106 5.106a.75.75 0 010 1.06l-.353.353a.75.75 0 11-1.06-1.06l.353-.353a.75.75 0 011.06 0z" /><path d="M10 5a5 5 0 100 10 5 5 0 000-10zM10 7a3 3 0 100 6 3 3 0 000-6z" /></svg>
+            Credits: <span id="credit-count" class="ml-1.5 font-bold">00</span>
+          </div>
+          <button id="auth-btn" class="text-sm bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition">Sign In</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-6xl mx-auto p-4 sm:p-8">
+    <!-- App Container -->
+    <div id="app-container" class="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
+
+      <!-- Upload State -->
+      <div id="upload-state" class="p-8">
+        <h1 class="text-3xl font-bold text-center text-slate-900 mb-2">Split PDF File</h1>
+        <p class="text-slate-600 text-center mb-8 max-w-2xl mx-auto">Separate PDF pages into multiple files. Costs <strong id="split-cost-label" class="text-indigo-600">1 credit per output file</strong>.</p>
+
+        <!-- Upload Area (Single File) -->
+        <div class="grid md:grid-cols-2 gap-8 items-center max-w-4xl mx-auto">
+            <div id="dropArea" class="relative block w-full h-full min-h-[300px] rounded-lg border-2 border-dashed border-slate-300 p-12 text-center hover:border-indigo-500 transition-colors drag-area-highlight flex flex-col justify-center items-center">
+              <input id="fileInput" type="file" accept="application/pdf" class="hidden" /> <!-- Removed multiple attribute -->
+              <svg class="mx-auto h-12 w-12 text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 0 1-1.41-8.775 5.25 5.25 0 0 1 10.233-2.33 3 3 0 0 1 3.758 3.848A3.752 3.752 0 0 1 18 19.5H6.75Z" /></svg>
+              <span class="mt-4 block text-lg font-semibold text-slate-800">Drag & Drop PDF File Here</span>
+              <span class="mt-1 block text-sm text-slate-500">or use an upload option</span>
+            </div>
+            <div class="space-y-4">
+                <button id="chooseBtn" class="w-full flex items-center justify-center text-center p-5 bg-indigo-600 text-white rounded-lg shadow-sm hover:bg-indigo-700 transition-all font-semibold text-lg">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3" viewBox="0 0 24 24" fill="currentColor"><path d="M4 5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5zm2 0v10h12V5H6zM3 19a1 1 0 0 1 1-1h16a1 1 0 1 1 0 2H4a1 1 0 0 1-1-1z"></path></svg>
+                  Choose PDF from Device
+                </button>
+                <div class="relative">
+                  <div class="absolute inset-0 flex items-center" aria-hidden="true"><div class="w-full border-t border-slate-300"></div></div>
+                  <div class="relative flex justify-center"><span class="bg-white px-3 text-sm text-slate-500">or from cloud</span></div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <button id="driveBtn" class="cloud-btn w-full flex items-center justify-center p-4 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors text-sm font-medium">
+                        <svg class="w-5 h-5 mr-2" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><path d="M38.5,12.5l-13.9,24l-14,-24h27.9Z" fill="#ffc107"/><path d="M24.6,36.5l14.2,-24.1l-28.2,0l14,24.1Z" fill="#ffeb3b"/><path d="M10.5,12.5l14,24l14,-24l-28,0Z" fill="#4caf50"/></svg>
+                        Google Drive
+                    </button>
+                    <button id="dropboxBtn" class="cloud-btn w-full flex items-center justify-center p-4 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors text-sm font-medium">
+                        <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="#0061FE" xmlns="http://www.w3.org/2000/svg"><path d="M6.331 4.282l5.666-3.856 5.668 3.856-5.668 3.857L6.33 4.282zm11.334 5.23L12 13.368l-5.665-3.856L.668 13.368l5.663 3.856 5.668-3.856 5.667 3.856 5.667-3.856-5.667-3.856zM12 15.29l5.667 3.856v-5.23L12 10.06l-5.665 3.856v5.23l5.665-3.856z"/></svg>
+                        Dropbox
+                    </button>
+                </div>
+            </div>
+        </div>
+      </div>
+
+      <!-- Options State -->
+      <div id="options-state" class="hidden p-8">
+        <div class="flex justify-between items-start mb-6">
+          <div>
+            <h2 class="text-2xl font-bold text-slate-900 mb-1">Choose Split Mode</h2>
+            <p class="text-sm text-slate-500">Selected file: <strong id="selected-filename"></strong> (<span id="selected-pagecount">0</span> pages)</p>
+          </div>
+          <button id="resetBtn" class="px-4 py-2 bg-white text-red-600 rounded-lg text-sm font-semibold border border-red-300 hover:bg-red-50 transition">Cancel</button>
+        </div>
+
+        <!-- Split Mode Selection -->
+        <div class="space-y-4 mb-8">
+          
+          <!-- Extract Pages -->
+          <div class="border border-slate-200 rounded-lg">
+            <input type="radio" name="split-mode" id="mode-extract" value="extract" class="sr-only" checked/>
+            <label for="mode-extract" class="block p-4 cursor-pointer hover:bg-slate-50 rounded-lg border-2 border-transparent">
+              <h3 class="font-semibold text-slate-800">Extract Pages</h3>
+              <p class="text-sm text-slate-600 mt-1">Select pages or ranges to keep in a single new PDF (e.g., 1, 3, 5-7, 10-end).</p>
+              <div class="mt-3">
+                <label for="extract-pages-input" class="block text-sm font-medium text-slate-700 mb-1">Pages to extract:</label>
+                <input type="text" id="extract-pages-input" placeholder="e.g., 1, 3, 5-7, 10-end" class="w-full p-2 border border-slate-300 rounded focus:ring-indigo-500 focus:border-indigo-500">
+                <p id="extract-error" class="text-xs text-red-600 mt-1 hidden"></p>
+              </div>
+            </label>
+          </div>
+
+          <!-- Split by Range -->
+          <div class="border border-slate-200 rounded-lg">
+            <input type="radio" name="split-mode" id="mode-range" value="range" class="sr-only"/>
+            <label for="mode-range" class="block p-4 cursor-pointer hover:bg-slate-50 rounded-lg border-2 border-transparent">
+              <h3 class="font-semibold text-slate-800">Split by Ranges</h3>
+              <p class="text-sm text-slate-600 mt-1">Define ranges to create multiple PDFs. Each range becomes a file (e.g., 1-3, 4-5, 6-end).</p>
+              <div class="mt-3">
+                <label for="range-pages-input" class="block text-sm font-medium text-slate-700 mb-1">Ranges to split by (comma-separated):</label>
+                <input type="text" id="range-pages-input" placeholder="e.g., 1-3, 4-5, 6-end" class="w-full p-2 border border-slate-300 rounded focus:ring-indigo-500 focus:border-indigo-500" disabled>
+                 <p id="range-error" class="text-xs text-red-600 mt-1 hidden"></p>
+              </div>
+            </label>
+          </div>
+
+          <!-- Split Every Page -->
+          <div class="border border-slate-200 rounded-lg">
+            <input type="radio" name="split-mode" id="mode-every" value="every" class="sr-only"/>
+            <label for="mode-every" class="block p-4 cursor-pointer hover:bg-slate-50 rounded-lg border-2 border-transparent">
+              <h3 class="font-semibold text-slate-800">Split Every Page</h3>
+              <p class="text-sm text-slate-600 mt-1">Create a separate PDF file for each page in the document.</p>
+            </label>
+          </div>
+        </div>
+
+        <!-- Split Button & Cost Summary -->
+        <div class="text-center">
+            <div id="cost-summary" class="bg-indigo-50 border border-indigo-200 text-indigo-800 p-4 rounded-lg inline-block mb-6">
+              <div class="font-bold text-2xl text-indigo-700" id="split-cost-display">?</div>
+              <div class="text-sm text-indigo-600">Credits for <span id="output-file-count">?</span> output file(s)</div>
+            </div>
+            <div>
+              <button id="splitBtn" class="px-8 py-4 bg-indigo-600 text-white rounded-lg font-semibold text-lg shadow-sm hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                Split PDF
+              </button>
+            </div>
+        </div>
+
+        <!-- Progress Area (hidden initially) -->
+        <div id="progress-area" class="hidden mt-8 text-center max-w-lg mx-auto">
+            <h3 id="progress-text" class="text-lg font-semibold text-indigo-700 mb-4"></h3>
+            <div class="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
+                <div id="progress-bar" class="h-3 bg-indigo-600 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+             <button id="cancelSplitBtn" class="mt-4 px-4 py-2 bg-white text-red-600 rounded-lg text-sm font-semibold border border-red-300 hover:bg-red-50 transition">Cancel Split</button>
+        </div>
+
+        <!-- Done State Area (hidden initially) -->
+        <div id="done-state" class="hidden text-center mt-8">
+             <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto">
+                <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+            </div>
+            <h2 class="text-2xl font-bold text-slate-900 mt-6 mb-2">Split Complete!</h2>
+            <p id="result-summary" class="text-slate-600 mb-8"></p>
+            <a id="downloadLink" class="inline-block px-8 py-4 bg-green-600 text-white rounded-lg font-semibold text-lg shadow-sm hover:bg-green-700 transition">
+                <!-- Text set dynamically -->
+            </a>
+            <button id="startOverBtn" class="mt-4 block mx-auto px-4 py-2 bg-white text-slate-700 rounded-lg font-semibold text-sm border border-slate-300 hover:bg-slate-50 transition">
+                Split Another PDF
+            </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div id="toast"></div>
+
+  <!-- Insufficient credits modal -->
+  <div id="modal" class="hidden fixed inset-0 bg-black/50 z-40 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md text-center">
+       <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg>
+      </div>
+      <h3 class="text-lg font-semibold text-slate-900 mb-2">Not Enough Credits</h3>
+      <p class="text-sm text-slate-600 mb-6">You don't have enough credits (<span id="required-credits-modal">0</span> needed) for this operation.</p>
+      <div class="flex justify-center gap-3">
+        <button id="closeModal" class="px-5 py-2.5 rounded-lg bg-slate-200 text-slate-800 font-semibold text-sm hover:bg-slate-300">Got it</button>
+      </div>
+    </div>
+  </div>
+
+<script type="module">
+/* ========== CONFIG & IMPORTS ========== */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const { PDFDocument } = PDFLib;
+const JSZip = window.JSZip; // Assuming JSZip is loaded globally
+
+const firebaseConfig = {
+  // TODO: Replace these with your Firebase project's config
+  apiKey: "REPLACE_API_KEY",
+  authDomain: "REPLACE_AUTH_DOMAIN",
+  projectId: "REPLACE_PROJECT_ID",
+  storageBucket: "REPLACE_STORAGE_BUCKET",
+  messagingSenderId: "REPLACE_MESSAGING_ID",
+  appId: "REPLACE_APP_ID"
+};
+
+const GOOGLE_CLIENT_ID = "REPLACE_WITH_YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com";
+const GOOGLE_API_KEY = "REPLACE_WITH_YOUR_GOOGLE_API_KEY";
+const SCOPES = 'https://www.googleapis.com/auth/drive.file';
+
+let app, auth, db;
+try {
+  app = initializeApp(firebaseConfig);
+  auth = getAuth(app);
+  db = getFirestore(app);
+} catch (e) {
+  console.error("Firebase init failed:", e);
+  showToast("App failed to load.", true);
+}
+
+/* ========== SETTINGS ========== */
+const SPLIT_COST_PER_OUTPUT = 1; // Cost per generated file
+const GUEST_START_CREDITS = 10;
+const ZIP_FILENAME = "FileForge_Split_PDFs.zip";
+
+/* ========== UI REFS ========== */
+const fileInput = document.getElementById('fileInput');
+const chooseBtn = document.getElementById('chooseBtn');
+const dropArea = document.getElementById('dropArea');
+const toastEl = document.getElementById('toast');
+const modal = document.getElementById('modal');
+const closeModal = document.getElementById('closeModal');
+const authBtn = document.getElementById('auth-btn');
+const creditBadge = document.getElementById('credit-badge');
+const creditCountEl = document.getElementById('credit-count');
+const driveBtn = document.getElementById('driveBtn');
+const dropboxBtn = document.getElementById('dropboxBtn');
+const splitCostLabel = document.getElementById('split-cost-label');
+const requiredCreditsModal = document.getElementById('required-credits-modal');
+
+// App States
+const uploadState = document.getElementById('upload-state');
+const optionsState = document.getElementById('options-state');
+const doneState = document.getElementById('done-state'); // Part of optionsState
+
+// Options State Components
+const selectedFilenameEl = document.getElementById('selected-filename');
+const selectedPagecountEl = document.getElementById('selected-pagecount');
+const resetBtn = document.getElementById('resetBtn'); // Cancel button
+const splitModeRadios = document.querySelectorAll('input[name="split-mode"]');
+const extractInput = document.getElementById('extract-pages-input');
+const rangeInput = document.getElementById('range-pages-input');
+const extractErrorEl = document.getElementById('extract-error');
+const rangeErrorEl = document.getElementById('range-error');
+const costSummaryEl = document.getElementById('cost-summary');
+const splitCostDisplay = document.getElementById('split-cost-display');
+const outputFileCountEl = document.getElementById('output-file-count');
+const splitBtn = document.getElementById('splitBtn');
+const progressArea = document.getElementById('progress-area');
+const progressBar = document.getElementById('progress-bar');
+const progressText = document.getElementById('progress-text');
+const cancelSplitBtn = document.getElementById('cancelSplitBtn');
+const resultSummary = document.getElementById('result-summary');
+const downloadLink = document.getElementById('downloadLink');
+const startOverBtn = document.getElementById('startOverBtn');
+
+// Set cost display text
+splitCostLabel.textContent = SPLIT_COST_PER_OUTPUT;
+
+/* ========== APP STATE ========== */
+let selectedFile = null; // Only one file for splitting
+let pdfDoc = null; // To store the loaded pdf-lib document
+let totalPages = 0;
+let currentUser = null;
+let userDocUnsubscribe = null;
+let guestCredits = null;
+let appState = 'idle'; // 'idle', 'file-loaded', 'splitting', 'done'
+let isSplitting = false;
+let shouldCancelSplit = false; // Flag for cancellation
+let currentSplitMode = 'extract'; // Default mode
+let pageRanges = []; // Parsed ranges/pages for splitting
+let calculatedCost = 0;
+
+/* ========== UI CONTROL ========== */
+function showToast(msg, err=false) { /* ... identical ... */ }
+function setProgress(pct, text) { /* ... identical ... */ }
+
+function updateUIForState(newState) {
+  appState = newState;
+
+  uploadState.classList.add('hidden');
+  optionsState.classList.add('hidden');
+  progressArea.classList.add('hidden');
+  doneState.classList.add('hidden');
+  splitBtn.disabled = true;
+
+  switch(appState) {
+    case 'idle':
+      uploadState.classList.remove('hidden');
+      break;
+    case 'file-loaded':
+      optionsState.classList.remove('hidden');
+      updateCostAndButton(); // Enable/disable split button based on valid input
+      break;
+    case 'splitting':
+      optionsState.classList.remove('hidden');
+      progressArea.classList.remove('hidden');
+      splitBtn.disabled = true;
+      resetBtn.disabled = true; // Disable cancel during split
+       // Disable mode/input fields
+      splitModeRadios.forEach(r => r.disabled = true);
+      extractInput.disabled = true;
+      rangeInput.disabled = true;
+      break;
+    case 'done':
+      optionsState.classList.remove('hidden');
+      doneState.classList.remove('hidden');
+      splitBtn.disabled = true;
+      resetBtn.disabled = true; // Keep cancel disabled on done screen
+      break;
+  }
+}
+
+function resetApp() {
+  selectedFile = null;
+  pdfDoc = null;
+  totalPages = 0;
+  fileInput.value = null;
+  isSplitting = false;
+  shouldCancelSplit = false;
+  currentSplitMode = 'extract'; // Reset to default
+  pageRanges = [];
+  calculatedCost = 0;
+  
+  // Reset UI elements
+  document.getElementById('mode-extract').checked = true;
+  extractInput.value = '';
+  rangeInput.value = '';
+  extractInput.disabled = false; // Re-enable default input
+  rangeInput.disabled = true;
+  extractErrorEl.classList.add('hidden');
+  rangeErrorEl.classList.add('hidden');
+  
+  // Re-enable buttons if needed
+  splitModeRadios.forEach(r => r.disabled = false);
+  resetBtn.disabled = false;
+
+  updateUIForState('idle');
+  showToast("Operation cancelled or completed.");
+}
+
+
+/* ========== GUEST/USER CREDIT HANDLING ========== */
+// (Identical to merge-pdf.html)
+function initGuestCredits() { /* ... */ }
+function updateGuestCredits(delta) { /* ... */ }
+async function initializeUserData(user) { /* ... */ }
+async function useUserCredits(uid, amountToSubtract) { /* ... */ }
+
+/* ========== AUTHENTICATION ========== */
+// (Identical to merge-pdf.html)
+authBtn.addEventListener('click', async () => { /* ... */ });
+onAuthStateChanged(auth, async (user) => { /* ... */ });
+function updateCreditUI() { /* ... */ }
+
+
+/* ========== FILE HANDLING & PDF LOADING ========== */
+
+async function handleSelectedFile(file) {
+  if (!file || (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf'))) {
+    showToast('Please select a valid PDF file.', true);
+    return;
+  }
+  selectedFile = file;
+  updateUIForState('splitting'); // Use splitting state UI for loading feedback
+  setProgress(0, `Loading ${file.name}...`);
+
+  try {
+    const arrayBuffer = await selectedFile.arrayBuffer();
+    pdfDoc = await PDFDocument.load(arrayBuffer, { ignoreEncryption: true });
+    totalPages = pdfDoc.getPageCount();
+
+    selectedFilenameEl.textContent = selectedFile.name;
+    selectedPagecountEl.textContent = totalPages;
+
+    // Default mode is 'extract', trigger initial validation/cost calc
+    currentSplitMode = 'extract'; 
+    document.getElementById('mode-extract').checked = true;
+    extractInput.disabled = false;
+    rangeInput.disabled = true;
+    rangeInput.value = ''; // Clear other input
+    validateAndCalculateCost(); 
+    
+    updateUIForState('file-loaded');
+
+  } catch (err) {
+    console.error("Error loading PDF:", err);
+    showToast('Could not read PDF: ' + (err.message || "Invalid format"), true);
+    resetApp();
+  }
+}
+
+// File Input Listeners (Device, Drag/Drop)
+chooseBtn.addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', (e) => handleSelectedFile(e.target.files?.[0]));
+dropArea.addEventListener('drop', (e) => handleSelectedFile(e.dataTransfer.files?.[0]));
+['dragenter','dragover'].forEach(ev => dropArea.addEventListener(ev, (e) => { e.preventDefault(); e.stopPropagation(); dropArea.classList.add('drag-area-highlight'); }));
+['dragleave','drop'].forEach(ev => dropArea.addEventListener(ev, (e) => { e.preventDefault(); e.stopPropagation(); dropArea.classList.remove('drag-area-highlight'); }));
+
+
+/* ========== CLOUD PICKER LOGIC ========== */
+// (Adapted for single file selection)
+let pickerApiLoaded = false; let tokenClient;
+function onDriveBtnClick() { /* ... */ }
+function createPicker(accessToken) { /* ... */ }
+async function pickerCallback(data, accessToken) { /* ... */ }
+function launchDropboxPicker() { /* ... */ }
+
+// --- Google Drive Implementation ---
+function onDriveBtnClick() {
+    if (!GOOGLE_CLIENT_ID.startsWith('REPLACE') && !GOOGLE_API_KEY.startsWith('REPLACE')) {
+        gapi.load('picker', () => {
+            pickerApiLoaded = true;
+            if (!tokenClient) {
+                 tokenClient = google.accounts.oauth2.initTokenClient({
+                    client_id: GOOGLE_CLIENT_ID, scope: SCOPES,
+                    callback: (tokenResponse) => {
+                        if (tokenResponse && tokenResponse.access_token) createPicker(tokenResponse.access_token);
+                        else showToast("Failed Google auth.", true);
+                    },
+                });
+            }
+            tokenClient.requestAccessToken({prompt: 'select_account'});
+        });
+    } else { showToast("Google Drive not configured.", true); }
+}
+function createPicker(accessToken) {
+    if (pickerApiLoaded) {
+        const view = new google.picker.View(google.picker.ViewId.DOCS);
+        view.setMimeTypes("application/pdf");
+        view.setSelectableMimeTypes("application/pdf");
+
+        const picker = new google.picker.PickerBuilder()
+             // MULTISELECT_ENABLED removed for single file
+            .addView(view)
+            .setOAuthToken(accessToken)
+            .setDeveloperKey(GOOGLE_API_KEY)
+            .setCallback((data) => pickerCallback(data, accessToken))
+            .build();
+        picker.setVisible(true);
+    }
+}
+async function pickerCallback(data, accessToken) {
+    if (data.action === google.picker.Action.PICKED) {
+        const doc = data.docs[0]; // Only take the first doc
+        showToast(`Fetching ${doc.name}...`);
+        const url = `https://www.googleapis.com/drive/v3/files/${doc.id}?alt=media`;
+        try {
+            const response = await fetch(url, { headers: { 'Authorization': `Bearer ${accessToken}` } });
+            if (!response.ok) throw new Error(`Fetch error: ${response.statusText}`);
+            const blob = await response.blob();
+            const file = new File([blob], doc.name, { type: 'application/pdf' });
+            handleSelectedFile(file); // Process the single file
+        } catch (err) {
+            console.error("Google Drive fetch error:", err);
+            showToast(`Failed to download ${doc.name}.`, true);
+        }
+    }
+}
+
+// --- Dropbox Implementation ---
+function launchDropboxPicker() {
+    const dropboxKey = document.getElementById('dropboxjs')?.getAttribute('data-app-key');
+    if (dropboxKey && !dropboxKey.startsWith('REPLACE')) {
+        Dropbox.choose({
+            success: async (files) => {
+                const fileInfo = files[0]; // Take only the first file
+                showToast(`Fetching ${fileInfo.name}...`);
+                try {
+                    const response = await fetch(fileInfo.link);
+                    if (!response.ok) throw new Error(`Fetch error: ${response.statusText}`);
+                    const blob = await response.blob();
+                    const file = new File([blob], fileInfo.name, { type: 'application/pdf' });
+                    handleSelectedFile(file); // Process the single file
+                } catch (err) {
+                    console.error("Dropbox fetch error:", err);
+                    showToast(`Failed to download ${fileInfo.name}.`, true);
+                }
+            },
+            linkType: "direct",
+            multiselect: false, // Ensure only single select
+            extensions: ['.pdf'],
+        });
+    } else { showToast("Dropbox not configured.", true); }
+}
+
+// Add listeners
+driveBtn.addEventListener('click', onDriveBtnClick);
+dropboxBtn.addEventListener('click', launchDropboxPicker);
+
+/* ========== SPLIT MODE & INPUT HANDLING ========== */
+
+splitModeRadios.forEach(radio => {
+    radio.addEventListener('change', (e) => {
+        currentSplitMode = e.target.value;
+        extractInput.disabled = (currentSplitMode !== 'extract');
+        rangeInput.disabled = (currentSplitMode !== 'range');
+
+        // Clear error messages when switching modes
+        extractErrorEl.classList.add('hidden');
+        rangeErrorEl.classList.add('hidden');
+
+        // Trigger validation and cost update for the new mode
+        validateAndCalculateCost();
+    });
+});
+
+// Add input listeners to validate and update cost dynamically
+extractInput.addEventListener('input', validateAndCalculateCost);
+rangeInput.addEventListener('input', validateAndCalculateCost);
+
+function validateAndCalculateCost() {
+    pageRanges = []; // Reset parsed ranges
+    calculatedCost = 0;
+    let isValid = false;
+    let outputFileCount = 0;
+    
+    extractErrorEl.classList.add('hidden');
+    rangeErrorEl.classList.add('hidden');
+
+    try {
+        if (currentSplitMode === 'extract') {
+            const input = extractInput.value.trim();
+            if (input) {
+                pageRanges = parsePageRanges(input, totalPages); // Expects single array of indices
+                if (pageRanges.length > 0) {
+                     outputFileCount = 1; // Always 1 file for extract mode
+                     isValid = true;
+                } else {
+                     extractErrorEl.textContent = "Invalid page selection or range.";
+                     extractErrorEl.classList.remove('hidden');
+                }
+            } else {
+                 extractErrorEl.textContent = "Please enter pages or ranges to extract.";
+                 extractErrorEl.classList.remove('hidden');
+            }
+        } else if (currentSplitMode === 'range') {
+            const input = rangeInput.value.trim();
+            if (input) {
+                const rangesStr = input.split(',').map(s => s.trim()).filter(s => s);
+                pageRanges = rangesStr.map(rangeStr => parsePageRanges(rangeStr, totalPages)); // Array of arrays
+                
+                // Validate each sub-range
+                if (pageRanges.every(range => range.length > 0)) {
+                     outputFileCount = pageRanges.length; // One file per valid range
+                     isValid = true;
+                } else {
+                     rangeErrorEl.textContent = "One or more ranges are invalid.";
+                     rangeErrorEl.classList.remove('hidden');
+                }
+                 // Check for overlapping ranges (optional but good)
+                 if (isValid && hasOverlappingRanges(pageRanges)) {
+                      rangeErrorEl.textContent = "Ranges cannot overlap.";
+                      rangeErrorEl.classList.remove('hidden');
+                      isValid = false;
+                 }
+            } else {
+                 rangeErrorEl.textContent = "Please enter comma-separated ranges.";
+                 rangeErrorEl.classList.remove('hidden');
+            }
+        } else if (currentSplitMode === 'every') {
+            // No input needed, always valid if totalPages > 0
+            if (totalPages > 0) {
+                outputFileCount = totalPages;
+                isValid = true;
+                // Generate ranges [[0], [1], [2], ...]
+                pageRanges = Array.from({length: totalPages}, (_, i) => [i]);
+            }
+        }
+
+    } catch (e) {
+        // Catch errors from parsePageRanges
+        isValid = false;
+        const errorEl = (currentSplitMode === 'extract') ? extractErrorEl : rangeErrorEl;
+        errorEl.textContent = e.message || "Invalid input format.";
+        errorEl.classList.remove('hidden');
+        console.error("Parsing error:", e);
+    }
+
+    if (isValid) {
+        calculatedCost = outputFileCount * SPLIT_COST_PER_OUTPUT;
+        splitCostDisplay.textContent = calculatedCost;
+        outputFileCountEl.textContent = outputFileCount;
+        costSummaryEl.classList.remove('opacity-50');
+        splitBtn.disabled = false;
+    } else {
+        calculatedCost = 0;
+        splitCostDisplay.textContent = '-';
+        outputFileCountEl.textContent = '0';
+        costSummaryEl.classList.add('opacity-50');
+        splitBtn.disabled = true;
+    }
+}
+
+
+/* ========== PAGE RANGE PARSING LOGIC ========== */
+
+/**
+ * Parses a string like "1, 3, 5-7, 10-end" into an array of 0-based page indices.
+ * Throws errors for invalid formats or out-of-bounds pages.
+ */
+function parsePageRanges(inputStr, totalPageCount) {
+    if (!inputStr) return [];
+    
+    const indices = new Set();
+    const parts = inputStr.split(',').map(s => s.trim()).filter(s => s);
+
+    for (const part of parts) {
+        if (part.includes('-')) {
+            // Handle range
+            const rangeParts = part.split('-').map(s => s.trim());
+            if (rangeParts.length !== 2) throw new Error(`Invalid range format: "${part}"`);
+            
+            let startStr = rangeParts[0];
+            let endStr = rangeParts[1];
+            
+            let start = parseInt(startStr, 10);
+            let end;
+
+            if (isNaN(start)) throw new Error(`Invalid start page number: "${startStr}"`);
+
+            if (endStr.toLowerCase() === 'end') {
+                end = totalPageCount;
+            } else {
+                end = parseInt(endStr, 10);
+                if (isNaN(end)) throw new Error(`Invalid end page number: "${endStr}"`);
+            }
+
+            if (start < 1 || start > totalPageCount) throw new Error(`Start page out of bounds (1-${totalPageCount}): "${start}"`);
+            if (end < 1 || end > totalPageCount) throw new Error(`End page out of bounds (1-${totalPageCount}): "${end}"`);
+            if (start > end) throw new Error(`Start page cannot be greater than end page: "${part}"`);
+
+            // Add indices (0-based)
+            for (let i = start; i <= end; i++) {
+                indices.add(i - 1);
+            }
+        } else {
+            // Handle single page number
+            let pageNum = parseInt(part, 10);
+            if (isNaN(pageNum)) throw new Error(`Invalid page number: "${part}"`);
+            if (pageNum < 1 || pageNum > totalPageCount) throw new Error(`Page number out of bounds (1-${totalPageCount}): "${pageNum}"`);
+            indices.add(pageNum - 1);
+        }
+    }
+
+    // Return sorted array of unique indices
+    return Array.from(indices).sort((a, b) => a - b);
+}
+
+/**
+ * Checks if any ranges in an array of arrays overlap.
+ * Assumes sub-arrays are sorted indices from parsePageRanges.
+ */
+function hasOverlappingRanges(rangesArray) {
+    const allIndices = new Set();
+    let totalCount = 0;
+    for (const range of rangesArray) {
+        totalCount += range.length;
+        range.forEach(index => allIndices.add(index));
+    }
+    // If the size of the set is less than the total count, there was overlap
+    return allIndices.size < totalCount;
+}
+
+
+/* ========== CORE: SPLIT LOGIC ========== */
+
+splitBtn.addEventListener('click', async () => {
+    if (isSplitting || !selectedFile || !pdfDoc || !isValidSplitInput()) return;
+
+    isSplitting = true;
+    shouldCancelSplit = false; // Reset cancellation flag
+    updateUIForState('splitting');
+    setProgress(0, 'Preparing to split...');
+
+    // 1. Check Credits (Final Check)
+    if (currentUser) {
+        const check = await useUserCredits(currentUser.uid, calculatedCost);
+        if (!check.ok) {
+            if (check.reason === 'insufficient') {
+                 requiredCreditsModal.textContent = calculatedCost;
+                 openInsufficientModal();
+            } else { showToast("Could not verify credits.", true); }
+            isSplitting = false; updateUIForState('file-loaded'); return;
+        }
+    } else {
+        if (guestCredits < calculatedCost) {
+            requiredCreditsModal.textContent = calculatedCost;
+            openInsufficientModal();
+            isSplitting = false; updateUIForState('file-loaded'); return;
+        }
+    }
+
+    // 2. Perform Split using pdf-lib
+    const outputFiles = []; // To store { name: string, blob: Blob }
+    const originalFilenameBase = selectedFile.name.replace(/\.pdf$/i, '');
+
+    try {
+        if (currentSplitMode === 'extract') {
+            setProgress(10, 'Extracting selected pages...');
+            const newPdfDoc = await PDFDocument.create();
+            const copiedPages = await newPdfDoc.copyPages(pdfDoc, pageRanges); // pageRanges is already [indices]
+            copiedPages.forEach(page => newPdfDoc.addPage(page));
+            
+            if (shouldCancelSplit) throw new Error("Operation cancelled by user.");
+            
+            setProgress(80, 'Finalizing extracted PDF...');
+            const pdfBytes = await newPdfDoc.save();
+            const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+            outputFiles.push({ name: `${originalFilenameBase}_extracted.pdf`, blob: blob });
+
+        } else if (currentSplitMode === 'range' || currentSplitMode === 'every') {
+            // pageRanges is an array of [indices] arrays for these modes
+             const totalOutputFiles = pageRanges.length;
+            for (let i = 0; i < totalOutputFiles; i++) {
+                 if (shouldCancelSplit) throw new Error("Operation cancelled by user.");
+
+                const indicesForThisFile = pageRanges[i];
+                const progressPct = Math.round((i / totalOutputFiles) * 90); // 0-90% for processing
+                const filenameSuffix = currentSplitMode === 'every' 
+                    ? `_page_${indicesForThisFile[0] + 1}` // For 'every', use page number
+                    : `_range_${i + 1}`; // For 'range', use range index
+                
+                setProgress(progressPct, `Creating file ${i + 1} of ${totalOutputFiles}...`);
+
+                const newPdfDoc = await PDFDocument.create();
+                const copiedPages = await newPdfDoc.copyPages(pdfDoc, indicesForThisFile);
+                copiedPages.forEach(page => newPdfDoc.addPage(page));
+
+                const pdfBytes = await newPdfDoc.save();
+                const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+                outputFiles.push({ name: `${originalFilenameBase}${filenameSuffix}.pdf`, blob: blob });
+                
+                // Small delay
+                await new Promise(r => setTimeout(r, 20));
+            }
+        }
+        
+        if (shouldCancelSplit) throw new Error("Operation cancelled by user.");
+
+        // 3. Create ZIP if multiple files, otherwise prepare single file download
+        let downloadBlob, downloadFilename;
+        if (outputFiles.length > 1) {
+            setProgress(95, 'Generating ZIP file...');
+            const zip = new JSZip();
+            outputFiles.forEach(file => zip.file(file.name, file.blob));
+            downloadBlob = await zip.generateAsync({ type: 'blob' }, (metadata) => {
+                 setProgress(95 + Math.round(metadata.percent / 20), `Zipping... ${Math.round(metadata.percent)}%`); // 95-100% for zipping
+            });
+            downloadFilename = ZIP_FILENAME;
+            downloadLink.textContent = "Download ZIP";
+        } else if (outputFiles.length === 1) {
+             setProgress(100, 'Finalizing PDF...');
+            downloadBlob = outputFiles[0].blob;
+            downloadFilename = outputFiles[0].name;
+             downloadLink.textContent = "Download PDF";
+        } else {
+            throw new Error("No output files were generated."); // Should not happen if validation is correct
+        }
+
+        // 4. Deduct Credits *after* success
+        const deductionOk = await deductCreditsAfterSuccess(calculatedCost);
+        if (!deductionOk) {
+            showToast('Split succeeded, but a billing error occurred.', true);
+            console.error("CRITICAL: Failed to deduct credits after successful split.");
+        }
+
+        // 5. Show Done State
+        const url = URL.createObjectURL(downloadBlob);
+        downloadLink.href = url;
+        downloadLink.download = downloadFilename;
+        resultSummary.textContent = `Successfully generated ${outputFiles.length} file(s). ${calculatedCost} credits were used.`;
+        updateUIForState('done');
+        showToast('Split complete!');
+
+    } catch (err) {
+        if (err.message === "Operation cancelled by user.") {
+             showToast("Split operation cancelled.", true);
+             resetApp();
+        } else {
+            console.error("Split error:", err);
+            showToast('Split failed: ' + (err.message || "Unknown error"), true);
+            resetApp(); // Reset on failure
+        }
+    } finally {
+         isSplitting = false; // Reset flag
+         // Ensure UI re-enabled if resetApp wasn't called on error
+         if (appState === 'splitting') { updateUIForState('file-loaded'); }
+    }
+});
+
+function isValidSplitInput() {
+    // Re-run validation logic just before splitting
+    validateAndCalculateCost();
+    return calculatedCost > 0 && !splitBtn.disabled; // Check if cost is calculated and button is enabled
+}
+
+
+async function deductCreditsAfterSuccess(cost) {
+  if (currentUser) {
+    const res = await useUserCredits(currentUser.uid, cost);
+    return res.ok;
+  } else {
+    updateGuestCredits(-cost); return true;
+  }
+}
+
+/* ========== MODAL & RESET/CANCEL BUTTONS ========== */
+closeModal.addEventListener('click', () => modal.classList.add('hidden'));
+resetBtn.addEventListener('click', resetApp); // Cancel button in options state
+startOverBtn.addEventListener('click', resetApp); // Button in done state
+cancelSplitBtn.addEventListener('click', () => {
+    shouldCancelSplit = true; // Set flag to stop the loop
+    showToast("Cancellation requested...", true);
+    // The loop in splitBtn handler will check this flag
+});
+
+function openInsufficientModal() { modal.classList.remove('hidden'); }
+
+/* ========== INITIALIZE ========== */
+function initialSetup() {
+   splitCostLabel.textContent = SPLIT_COST_PER_OUTPUT;
+   updateUIForState('idle');
+   // Auth change listener handles initial credit load
+}
+
+if (auth) { initialSetup(); }
+
+</script>
+</body>
+</html>
+
+
